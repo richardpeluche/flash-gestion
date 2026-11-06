@@ -1,0 +1,77 @@
+name: Build APK
+
+# Solo manual: los push a main (cambios de la web) no generan Releases.
+# Para una version nueva, subir versionCode y versionName en android/app/build.gradle.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  KEY_ALIAS: flash
+  # Huella publica del certificado; el build falla si la APK se firma con otra llave.
+  EXPECTED_SHA256: 7caaa3b45989e83a1a1af239f883ce92303d6fcfd017ddefda75051d70bc2db5
+  PACKAGE_ID: com.ricchary.flash
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Leer version y comprobar que no exista el Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION=$(sed -n 's/^ *versionName "\(.*\)"$/\1/p' android/app/build.gradle)
+          [ -n "$VERSION" ] || { echo "::error::No se pudo leer versionName"; exit 1; }
+          if gh release view "v$VERSION" >/dev/null 2>&1; then
+            echo "::error::v$VERSION ya existe; sube versionCode y versionName"
+            exit 1
+          fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Instalar SDK de Android
+        run: |
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "build-tools;36.0.0" > /dev/null
+          echo "$ANDROID_HOME/build-tools/36.0.0" >> "$GITHUB_PATH"
+
+      - name: Compilar APK sin firmar
+        working-directory: android
+        run: ./gradlew --no-daemon assembleRelease
+
+      - name: Firmar APK
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          [ -n "$KEYSTORE_BASE64" ] && [ -n "$KEYSTORE_PASSWORD" ] || { echo "::error::Faltan los secrets de firma"; exit 1; }
+          KS="$RUNNER_TEMP/flash.keystore"
+          trap 'rm -f "$KS"' EXIT
+          printf '%s' "$KEYSTORE_BASE64" | base64 -d > "$KS"
+          zipalign -f -p 4 android/app/build/outputs/apk/release/app-release-unsigned.apk Flash.apk
+          apksigner sign --ks "$KS" --ks-key-alias "$KEY_ALIAS" \
+            --ks-pass env:KEYSTORE_PASSWORD --key-pass env:KEYSTORE_PASSWORD Flash.apk
+
+      - name: Verificar APK
+        run: |
+          CERTS=$(apksigner verify --print-certs Flash.apk)
+          echo "$CERTS"
+          echo "$CERTS" | grep -q "SHA-256 digest: $EXPECTED_SHA256" || { echo "::error::La firma no coincide con la huella esperada"; exit 1; }
+          BADGING=$(aapt2 dump badging Flash.apk | head -1)
+          echo "$BADGING"
+          echo "$BADGING" | grep -q "name='$PACKAGE_ID'" || { echo "::error::Package incorrecto"; exit 1; }
+          echo "$BADGING" | grep -q "versionName='$VERSION'" || { echo "::error::Version incorrecta"; exit 1; }
+
+      - name: Publicar Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "v$VERSION" Flash.apk --target "$GITHUB_SHA" --title "Flash $VERSION" \
+            --notes "APK de Flash $VERSION. Certificado SHA-256: $EXPECTED_SHA256"
