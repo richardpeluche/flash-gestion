@@ -205,6 +205,8 @@ dialog::backdrop{background:oklch(0.15 0.02 272 / .55)}
 .row-main b{display:block;font-size:15.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .row-main small{display:block;color:var(--muted);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .row-side{text-align:right;flex:none}
+.cat-h{font-size:12.5px;font-weight:700;color:var(--muted);padding:14px 0 2px}
+.cat-h:first-child{padding-top:0}
 .row-side b{display:block;color:var(--gain-strong);font-size:15.5px}
 .row-side small{color:var(--muted);font-size:12.5px}
 .row.tap{cursor:pointer;border-radius:10px;padding-left:8px;padding-right:8px;margin:0 -8px}
@@ -296,6 +298,7 @@ dialog::backdrop{background:oklch(0.15 0.02 272 / .55)}
   <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></symbol>
   <symbol id="i-dl" viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></symbol>
   <symbol id="i-ul" viewBox="0 0 24 24"><path d="M12 21V9"/><path d="m7 14 5-5 5 5"/><path d="M5 3h14"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M6 3h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><circle cx="11.5" cy="10" r="2.5"/><path d="M7.5 16.5a4 4 0 0 1 8 0"/><path d="M4 7h2"/><path d="M4 12h2"/><path d="M4 17h2"/></symbol>
   <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
 </svg>
 
@@ -341,6 +344,7 @@ dialog::backdrop{background:oklch(0.15 0.02 272 / .55)}
   <details class="more" id="cliBox">
     <summary><svg class="ic" style="margin:0;transform:none;color:var(--ink-3)"><use href="#i-user"/></svg> Cliente y entrega <small id="cliResumen">opcional</small><svg class="ic"><use href="#i-down"/></svg></summary>
     <div class="more-body">
+      <button class="btn btn-ghost" id="cliContacto" data-contactos hidden><svg class="ic"><use href="#i-book"/></svg>Elegir cliente de mis contactos</button>
       <div class="field"><label for="fCli">Cliente</label><input id="fCli" class="inp" autocomplete="off" placeholder="Nombre o empresa"></div>
       <div class="grid2">
         <div class="field"><label for="fCliTel">Teléfono</label><input id="fCliTel" class="inp" type="tel" inputmode="tel" placeholder="09…"></div>
@@ -491,6 +495,7 @@ dialog::backdrop{background:oklch(0.15 0.02 272 / .55)}
   <div class="sheet">
     <div class="sheet-h"><h2 id="dlgProvFormT">Proveedor</h2><button class="x" data-close aria-label="Cerrar"><svg class="ic"><use href="#i-x"/></svg></button></div>
     <div class="sheet-b">
+      <button class="btn btn-ghost" id="pvContacto" data-contactos hidden><svg class="ic"><use href="#i-book"/></svg>Elegir de mis contactos</button>
       <div class="field"><label for="pvNombre">Nombre</label><input id="pvNombre" class="inp" placeholder="Ej: Gorras Don Luis"></div>
       <div class="field"><label for="pvTel">WhatsApp</label><input id="pvTel" class="inp" type="tel" inputmode="tel" placeholder="0991234567"></div>
       <div class="field"><label for="pvNota">Nota</label><input id="pvNota" class="inp" placeholder="Qué productos te vende (opcional)"></div>
@@ -511,7 +516,11 @@ dialog::backdrop{background:oklch(0.15 0.02 272 / .55)}
       <div class="cfg-sec">
         <div class="sec-h" style="margin:0"><h3>Proveedores</h3><span id="cProvN"></span></div>
         <div class="list" id="cProvLista"></div>
-        <button class="btn btn-ghost" id="cProvNuevo"><svg class="ic"><use href="#i-plus"/></svg>Agregar proveedor</button>
+        <div class="foot-actions">
+          <button class="btn btn-ghost" id="cProvNuevo"><svg class="ic"><use href="#i-plus"/></svg>Agregar proveedor</button>
+          <button class="btn btn-ghost" id="cProvContactos" data-contactos hidden><svg class="ic"><use href="#i-book"/></svg>Importar de contactos</button>
+        </div>
+        <p class="hint" id="cContactosHint" hidden>Importar contactos funciona en Chrome de Android. En este navegador agrégalos a mano.</p>
       </div>
       <div class="cfg-sec">
         <h3>Firma de los mensajes</h3>
@@ -531,7 +540,7 @@ dialog::backdrop{background:oklch(0.15 0.02 272 / .55)}
         <h3>Zona de cuidado</h3>
         <button class="btn btn-danger" id="cBorrarTodo"><svg class="ic"><use href="#i-trash"/></svg>Borrar todos los datos</button>
       </div>
-      <p class="hint" style="text-align:center">flash-gestion · v1.0</p>
+      <p class="hint" style="text-align:center">flash-gestion · v1.1</p>
     </div>
   </div>
 </dialog>
@@ -909,16 +918,18 @@ function abrirCatalogo(modo){
   pintarCatalogo(); abrir('dlgProd');
 }
 function pintarCatalogo(){
-  var t=$('pBuscar').value.trim().toLowerCase(), a=prods().slice().sort(function(x,y){ return x.nombre.localeCompare(y.nombre,'es'); });
-  if(t) a=a.filter(function(p){ return p.nombre.toLowerCase().indexOf(t)>-1; });
+  var t=$('pBuscar').value.trim().toLowerCase(), a=prods().slice().sort(function(x,y){ return (x.cat||'~').localeCompare(y.cat||'~','es') || x.nombre.localeCompare(y.nombre,'es'); });
+  if(t) a=a.filter(function(p){ return (p.nombre+' '+(p.cat||'')).toLowerCase().indexOf(t)>-1; });
   var box=$('pLista');
   if(!prods().length){ box.innerHTML='<div class="empty"><b>Catálogo vacío</b>Es opcional: guarda aquí los productos que más vendes para cargarlos rápido y ajustar su margen.</div>'; return; }
   if(!a.length){ box.innerHTML='<p class="hint">Nada coincide con «'+esc(t)+'».</p>'; return; }
+  var catPrev=null;
   box.innerHTML=a.map(function(p){
-    var g=num(p.pub)-num(p.fab);
-    return '<div class="row tap" data-p="'+esc(p.id)+'" role="button" tabindex="0">'+
-      '<div class="row-main"><b>'+esc(p.nombre)+'</b><small>Fábrica '+money(p.fab)+' · Tu precio '+money(p.pub)+'</small></div>'+
-      '<div class="row-side"><b class="money">+'+money(g)+'</b><small>'+(margenTxt(p.fab,p.pub)||'sin costo')+'</small></div>'+
+    var sinFab=!(num(p.fab)>0), g=num(p.pub)-num(p.fab), cab='';
+    if(!t && (p.cat||'Otros')!==catPrev){ catPrev=p.cat||'Otros'; cab='<h3 class="cat-h">'+esc(catPrev)+'</h3>'; }
+    return cab+'<div class="row tap" data-p="'+esc(p.id)+'" role="button" tabindex="0">'+
+      '<div class="row-main"><b>'+esc(p.nombre)+'</b><small>Tu precio '+money(p.pub)+' · '+(sinFab?'<span style="color:var(--warn);font-weight:650">falta fábrica</span>':'fábrica '+money(p.fab))+'</small></div>'+
+      (sinFab?'':'<div class="row-side"><b class="money">+'+money(g)+'</b><small>'+margenTxt(p.fab,p.pub)+'</small></div>')+
       (catModo==='elegir'?'<button class="icon-btn" data-edit="'+esc(p.id)+'" aria-label="Editar '+esc(p.nombre)+'" style="width:40px;height:40px"><svg class="ic"><use href="#i-edit"/></svg></button>':'')+
       '</div>';
   }).join('');
@@ -930,7 +941,7 @@ $('pLista').addEventListener('click',function(e){
   var id=r.getAttribute('data-p');
   if(catModo==='elegir'){
     var p=prods().filter(function(x){ return x.id===id; })[0]; if(!p) return;
-    agregarItem({desc:p.nombre,qty:1,fab:num(p.fab),pub:num(p.pub),prodId:p.id},false);
+    agregarItem({desc:p.nombre,qty:1,fab:num(p.fab)>0?num(p.fab):'',pub:num(p.pub),prodId:p.id},false);
     catAgregados++; toast(p.nombre+' agregado'+(catAgregados>1?' ('+catAgregados+' en total)':''));
   }else abrirProdForm(id);
 });
@@ -942,7 +953,7 @@ var prodEdit=null;
 function abrirProdForm(id){
   prodEdit=id; var p=id?prods().filter(function(x){ return x.id===id; })[0]:null;
   $('dlgProdFormT').textContent=p?'Editar producto':'Nuevo producto';
-  $('pfNombre').value=p?p.nombre:''; $('pfFab').value=p?decP(p.fab):''; $('pfPub').value=p?decP(p.pub):'';
+  $('pfNombre').value=p?p.nombre:''; $('pfFab').value=p&&num(p.fab)>0?decP(p.fab):''; $('pfPub').value=p?decP(p.pub):'';
   $('pfMargen').value=p&&num(p.fab)>0?dec(Math.round((num(p.pub)-num(p.fab))/num(p.fab)*1000)/10):'';
   $('pfBorrar').hidden=!p; pfUnidad();
   abrir('dlgProdForm'); $('pfNombre').focus();
@@ -958,8 +969,8 @@ $('pfGuardar').onclick=function(){
   if(!n){ toast('Escribe el nombre del producto'); $('pfNombre').focus(); return; }
   var a=prods();
   if(a.some(function(x){ return x.id!==prodEdit && x.nombre.toLowerCase()===n.toLowerCase(); })){ toast('Ya existe un producto con ese nombre'); return; }
-  if(prodEdit) a.forEach(function(x){ if(x.id===prodEdit){ x.nombre=n; x.fab=f; x.pub=p; } });
-  else a.push({id:uid(),nombre:n,fab:f,pub:p});
+  if(prodEdit) a.forEach(function(x){ if(x.id===prodEdit){ x.nombre=n; x.fab=$('pfFab').value.trim()===''?'':f; x.pub=p; } });
+  else a.push({id:uid(),nombre:n,fab:$('pfFab').value.trim()===''?'':f,pub:p});
   saveProds(a); cerrar('dlgProdForm'); pintarCatalogo(); toast(prodEdit?'Producto actualizado':'Producto guardado');
 };
 $('pfBorrar').onclick=function(){
@@ -1359,7 +1370,7 @@ var Voz=(function(){
       if(qty===null) qty=1;
       var enc=buscarCat(desc,cat);
       out.push({qty:qty,desc:enc?enc.nombre:desc.charAt(0).toUpperCase()+desc.slice(1),
-        fab:fab!==null?fab:(enc?num(enc.fab):null),pub:pub!==null?pub:(enc?num(enc.pub):null),prodId:enc?enc.id:''});
+        fab:fab!==null?fab:(enc&&num(enc.fab)>0?num(enc.fab):null),pub:pub!==null?pub:(enc?num(enc.pub):null),prodId:enc?enc.id:''});
     });
     return out;
   }
@@ -1417,6 +1428,73 @@ $('vAgregar').onclick=function(){
     cur.items.push({desc:String(l.desc).trim(),qty:num(l.qty)||1,fab:l.fab===null?'':l.fab,pub:l.pub===null?'':l.pub,prodId:l.prodId||''}); n++; });
   marcarSucio(); pintarItems(); cerrar('dlgVoz'); $('vTxt').value=''; toast(n+' producto'+(n===1?'':'s')+' agregado'+(n===1?'':'s'));
 };
+
+/* ═════════ Contactos del teléfono (Contact Picker API · Chrome Android) ═════════ */
+var hayContactos=('contacts' in navigator) && ('ContactsManager' in window);
+document.querySelectorAll('[data-contactos]').forEach(function(b){ b.hidden=!hayContactos; });
+$('cContactosHint').hidden=hayContactos;
+function mejorTel(tels){
+  tels=(tels||[]).map(function(t){ return String(t).trim(); }).filter(Boolean);
+  // prefiere celular (09… o +593 9…), que es el que tiene WhatsApp
+  var cel=tels.filter(function(t){ var d=telWA(t); return /^5939\d{8}$/.test(d); })[0];
+  return cel||tels[0]||'';
+}
+function elegirContactos(multiple){
+  return navigator.contacts.select(['name','tel'],{multiple:!!multiple}).then(function(lista){
+    return (lista||[]).map(function(c){ return {nombre:((c.name||[])[0]||'').trim(), tel:mejorTel(c.tel)}; })
+      .filter(function(c){ return c.nombre||c.tel; });
+  }).catch(function(){ toast('No se pudo abrir tus contactos'); return []; });
+}
+$('pvContacto').onclick=function(){
+  elegirContactos(false).then(function(l){ if(!l.length) return;
+    if(l[0].nombre) $('pvNombre').value=l[0].nombre; if(l[0].tel) $('pvTel').value=l[0].tel;
+    if(!l[0].tel) toast('Ese contacto no tiene número'); });
+};
+$('cliContacto').onclick=function(){
+  elegirContactos(false).then(function(l){ if(!l.length) return;
+    cur.cli.nombre=l[0].nombre||cur.cli.nombre; cur.cli.tel=l[0].tel||cur.cli.tel;
+    $('fCli').value=cur.cli.nombre; $('fCliTel').value=cur.cli.tel; marcarSucio(); pintarCliResumen(); });
+};
+$('cProvContactos').onclick=function(){
+  elegirContactos(true).then(function(l){ if(!l.length) return;
+    var a=provs(), nuevos=0, repetidos=0;
+    l.forEach(function(c){
+      var d=telWA(c.tel);
+      if(a.some(function(p){ return (d && telWA(p.tel)===d) || (!d && p.nombre.toLowerCase()===c.nombre.toLowerCase()); })){ repetidos++; return; }
+      a.push({id:uid(),nombre:c.nombre||('+'+d),tel:c.tel,nota:''}); nuevos++;
+    });
+    saveProvs(a); pintarCfgProvs(); pintarProvSelect();
+    toast(nuevos+' proveedor'+(nuevos===1?'':'es')+' agregado'+(nuevos===1?'':'s')+(repetidos?' · '+repetidos+' ya estaba'+(repetidos===1?'':'n'):''));
+  });
+};
+
+/* ═════════ Catálogo precargado (semilla de RICCHARY V2) ═════════
+   Precio de la V2 = tu precio. El precio de fábrica queda vacío para
+   que lo completes. Se carga una sola vez y no duplica por nombre. */
+var SEMILLA=[
+  ['Gorra Trucker Malla Simple','Gorras',2.00],
+  ['Gorra Malla Premium','Gorras',5.50],
+  ['Gorra Gabardina Premium','Gorras',5.50],
+  ['Gorra Gabardina / Algodón','Gorras',2.50],
+  ['Camiseta Algodón Jersey','Polos & Camisetas',8.00],
+  ['Polo Unicolor Corporativo','Polos & Camisetas',10.00],
+  ['Polo Combinado','Polos & Camisetas',12.00],
+  ['Chaqueta Promo Estándar','Chaquetas Universitarias',23.00],
+  ['Chaqueta con Capucha','Chaquetas Universitarias',24.50],
+  ['Chaqueta Diseño Especial','Chaquetas Universitarias',33.00],
+  ['Chaqueta Forro Interno Personalizado','Chaquetas Universitarias',35.00],
+  ['Chaqueta Completa + Capucha','Chaquetas Universitarias',38.00],
+  ['Chaleco Liviano Económico','Chalecos & Chompas',8.50],
+  ['Chaleco Labrado Clima Frío','Chalecos & Chompas',10.50],
+  ['Chaleco Térmico Simple','Chalecos & Chompas',7.00],
+  ['Chompa Labrada Clima Frío','Chalecos & Chompas',13.00]
+];
+(function sembrar(){
+  if(cfg().semilla) return;
+  var a=prods(), hay={}; a.forEach(function(p){ hay[p.nombre.toLowerCase()]=1; });
+  SEMILLA.forEach(function(x){ if(!hay[x[0].toLowerCase()]) a.push({id:uid(),nombre:x[0],cat:x[1],fab:'',pub:x[2]}); });
+  saveProds(a); setCfg({semilla:'v2-16'});
+})();
 
 /* ═════════ Arranque ═════════ */
 cur=load(K.draft,null);
