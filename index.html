@@ -194,6 +194,12 @@ body.en-inicio{padding-bottom:env(safe-area-inset-bottom)}
 .est-seg{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
 .est-seg button{min-height:42px;border-radius:var(--r-sm);border:1px solid var(--line-strong);font-weight:650;font-size:13.5px;background:var(--surface)}
 .est-seg button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.uso-card{display:flex;flex-direction:column;gap:10px;padding:16px;border-radius:var(--r-lg);background:var(--surface);border:1.5px solid var(--line)}
+.uso-card p{margin:0;font-size:15px;line-height:1.45}
+.uso-card .uso-row{display:grid;grid-template-columns:1fr auto;gap:8px}
+body.uso-prov .solo-vend,body.uso-prov #metaHome{display:none!important}
+body:not(.uso-prov) .solo-uprov{display:none!important}
+.uso-ops{display:flex;flex-direction:column;gap:12px}
 .tag-app{display:inline-flex;align-items:center;gap:4px;margin-left:6px;padding:1px 8px;border-radius:999px;font-size:11.5px;font-weight:700;background:oklch(0.94 0.06 150);color:var(--gain-strong);vertical-align:middle;white-space:nowrap}
 .tag-app::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}
 .prov-con{font-size:12.5px;font-weight:650;color:var(--gain-strong)}
@@ -420,24 +426,31 @@ a.btn{text-decoration:none}
     <div class="brand-txt"><b>flash</b><span>gestión de ventas</span></div>
   </div>
   <button class="nav-btn" id="btnHome" aria-label="Inicio"><svg class="ic"><use href="#i-home"/></svg></button>
-  <button class="nav-btn" id="btnHist" aria-label="Historial de pedidos"><svg class="ic"><use href="#i-hist"/></svg></button>
-  <button class="nav-btn" id="btnRep" aria-label="Reporte de comisiones"><svg class="ic"><use href="#i-chart"/></svg></button>
-  <button class="nav-btn" id="btnProd" aria-label="Catálogo de productos"><svg class="ic"><use href="#i-box"/></svg></button>
+  <button class="nav-btn solo-vend" id="btnHist" aria-label="Historial de pedidos"><svg class="ic"><use href="#i-hist"/></svg></button>
+  <button class="nav-btn solo-vend" id="btnRep" aria-label="Reporte de comisiones"><svg class="ic"><use href="#i-chart"/></svg></button>
+  <button class="nav-btn solo-vend" id="btnProd" aria-label="Catálogo de productos"><svg class="ic"><use href="#i-box"/></svg></button>
   <button class="nav-btn" id="btnCfg" aria-label="Ajustes y proveedores"><svg class="ic"><use href="#i-set"/></svg></button>
 </header>
 
 <section id="home" class="home" aria-label="Inicio">
-  <button class="meta" id="metaHome" type="button" aria-label="Meta de ganancia del mes"></button>
-  <h1 class="home-h">¿Qué vas a hacer?</h1>
-  <button class="path path-prov" id="goProv" type="button">
+  <button class="meta solo-vend" id="metaHome" type="button" aria-label="Meta de ganancia del mes"></button>
+  <h1 class="home-h solo-vend">¿Qué vas a hacer?</h1>
+  <h1 class="home-h solo-uprov">Tus pedidos</h1>
+  <div class="uso-card solo-uprov" id="provSinCon" hidden>
+    <p><b>Todavía no estás conectado con un vendedor.</b></p>
+    <p>Pídele que te envíe la invitación por WhatsApp desde su app Flash y ábrela: quedas conectado y sus pedidos te llegan aquí.</p>
+    <span class="lbl">¿Ya tienes el enlace o el código? Pégalo aquí</span>
+    <div class="uso-row"><input id="provCodigo" class="inp" placeholder="https://… o código" autocomplete="off" autocapitalize="characters" spellcheck="false"><button class="btn btn-ink" id="provConectar" type="button">Conectar</button></div>
+  </div>
+  <button class="path path-prov solo-vend" id="goProv" type="button">
     <span class="path-ic"><svg class="ic"><use href="#i-truck"/></svg></span>
     <span class="path-t"><b>Pedido a proveedor</b><span>Le pides el producto y registras tu comisión</span></span>
   </button>
-  <button class="path path-cli" id="goCli" type="button">
+  <button class="path path-cli solo-vend" id="goCli" type="button">
     <span class="path-ic"><svg class="ic"><use href="#i-pdf"/></svg></span>
     <span class="path-t"><b>Cotización a cliente</b><span>PDF con tu marca y solo tu precio, por WhatsApp</span></span>
   </button>
-  <button class="path path-com" id="goCom" type="button">
+  <button class="path path-com solo-vend" id="goCom" type="button">
     <span class="path-ic"><svg class="ic"><use href="#i-box"/></svg></span>
     <span class="path-t"><b>Pedido de compra</b><span>Lo que compras para ti: cantidad, producto y precio del proveedor</span></span>
   </button>
@@ -445,9 +458,9 @@ a.btn{text-decoration:none}
     <span class="path-ic"><svg class="ic"><use href="#i-truck"/></svg></span>
     <span class="path-t"><b>Pedidos recibidos <span id="recN"></span></b><span>Lo que tus vendedores te piden por la app</span></span>
   </button>
-  <button class="cont" id="goSeguir" type="button" hidden></button>
+  <button class="cont solo-vend" id="goSeguir" type="button" hidden></button>
   <button class="aviso-push" id="homePush" type="button" hidden><svg class="ic"><use href="#i-bell"/></svg><span><b>Activa las notificaciones</b><br>Entérate al instante de pedidos y cambios de estado.</span></button>
-  <div class="home-links">
+  <div class="home-links solo-vend">
     <button class="btn btn-ghost" id="homeHist"><svg class="ic"><use href="#i-hist"/></svg>Historial</button>
     <button class="btn btn-ghost" id="homeRep"><svg class="ic"><use href="#i-chart"/></svg>Comisiones</button>
   </div>
@@ -748,6 +761,10 @@ a.btn{text-decoration:none}
         <div id="nubeBox"></div>
       </div>
       <div class="cfg-sec">
+        <h3>Cómo usas Flash</h3>
+        <label class="check"><input type="checkbox" id="cUsoVend"><span><b>Usar también como vendedor</b><br><span class="hint">Pedidos a proveedores, cotizaciones, compras y comisiones. Apágalo si solo recibes pedidos.</span></span></label>
+      </div>
+      <div class="cfg-sec solo-vend">
         <div class="sec-h" style="margin:0"><h3>Proveedores</h3><span id="cProvN"></span></div>
         <div class="list" id="cProvLista"></div>
         <div class="foot-actions">
@@ -756,7 +773,7 @@ a.btn{text-decoration:none}
         </div>
         <p class="hint" id="cContactosHint" hidden>Importar contactos funciona en Chrome de Android. En este navegador agrégalos a mano.</p>
       </div>
-      <div class="cfg-sec">
+      <div class="cfg-sec solo-vend">
         <h3>Tu empresa (cotización PDF)</h3>
         <button class="btn btn-ghost" id="eImportar"><svg class="ic"><use href="#i-dl"/></svg>Usar mis datos de RICCHARY</button>
         <div style="display:flex;gap:12px;align-items:center">
@@ -784,7 +801,7 @@ a.btn{text-decoration:none}
           <select id="eIva" class="inp"><option value="0">0%</option><option value="12">12%</option><option value="15">15%</option></select></div>
         <div class="field"><label for="eCond">Condiciones (pie de la cotización)</label><textarea id="eCond" class="inp" placeholder="Precios válidos por 15 días. Entrega a convenir."></textarea></div>
       </div>
-      <div class="cfg-sec">
+      <div class="cfg-sec solo-vend">
         <h3>Meta y cobros</h3>
         <div class="grid2">
           <div class="field"><label for="cMeta">Meta de ganancia al mes</label><input id="cMeta" class="inp num" inputmode="decimal" placeholder="500"></div>
@@ -792,12 +809,12 @@ a.btn{text-decoration:none}
         </div>
         <p class="hint">La meta cuenta los pedidos enviados del mes, cobrados o no. Una comisión pendiente se marca en rojo pasados esos días desde que enviaste el pedido.</p>
       </div>
-      <div class="cfg-sec">
+      <div class="cfg-sec solo-vend">
         <h3>Control de gastos RICCHARY</h3>
         <label class="check"><input type="checkbox" id="cGastoRic"><span><b>Registrar compras pagadas como gasto</b><br><span class="hint">Al marcar un pedido de compra como Pagado, se anota en Reportes → Gastos de la app RICCHARY (en este mismo navegador, y en tu nube si tienes la sesión abierta allá).</span></span></label>
         <p class="hint" id="cGastoSt"></p>
       </div>
-      <div class="cfg-sec">
+      <div class="cfg-sec solo-vend">
         <h3>Firma de los mensajes</h3>
         <div class="field"><label for="cNombre">Tu nombre</label><input id="cNombre" class="inp" placeholder="Richar"></div>
       </div>
@@ -815,7 +832,7 @@ a.btn{text-decoration:none}
         <h3>Zona de cuidado</h3>
         <button class="btn btn-danger" id="cBorrarTodo"><svg class="ic"><use href="#i-trash"/></svg>Borrar todos los datos</button>
       </div>
-      <p class="hint" style="text-align:center">flash-gestion · v1.11</p>
+      <p class="hint" style="text-align:center">flash-gestion · v1.12</p>
     </div>
   </div>
 </dialog>
@@ -837,6 +854,25 @@ a.btn{text-decoration:none}
 </dialog>
 
 <!-- Invitación recibida -->
+<dialog id="dlgUso" aria-labelledby="dlgUsoT">
+  <div class="sheet">
+    <div class="sheet-h"><h2 id="dlgUsoT">¿Cómo vas a usar Flash?</h2></div>
+    <div class="sheet-b">
+      <p class="hint">Puedes cambiarlo después en Ajustes.</p>
+      <div class="uso-ops">
+        <button class="path path-rec" id="usoProv" type="button">
+          <span class="path-ic"><svg class="ic"><use href="#i-truck"/></svg></span>
+          <span class="path-t"><b>Recibo pedidos</b><span>Soy proveedor: mis vendedores me mandan pedidos y yo marco el avance</span></span>
+        </button>
+        <button class="path path-prov" id="usoVend" type="button">
+          <span class="path-ic"><svg class="ic"><use href="#i-pdf"/></svg></span>
+          <span class="path-t"><b>Hago pedidos y vendo</b><span>Pido a proveedores, cotizo a clientes y llevo mis comisiones</span></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</dialog>
+
 <dialog id="dlgApk" aria-labelledby="dlgApkT">
   <div class="sheet">
     <div class="sheet-h"><h2 id="dlgApkT">Instala Flash en tu teléfono</h2><button class="x" data-close aria-label="Cerrar"><svg class="ic"><use href="#i-x"/></svg></button></div>
@@ -2724,7 +2760,7 @@ var FlashNube=(function(){
       paso=rpc('flash_crear_cuenta',{p_nombre:n,p_tel:$('invTel').value.trim()}).then(function(r){ try{ localStorage.removeItem(KH); }catch(e){} setSt({clave:r.clave,id:r.id,nombre:n,desde:null,imgsSubidas:{}}); return r.clave; }); }
     b.disabled=true; $('invSt').textContent='Conectando…';
     paso.then(function(clave){ return rpc('flash_aceptar',{p_clave:clave,p_codigo:codigoInv}); }).then(function(r){
-      setSt({esProveedor:true}); try{ sessionStorage.removeItem('flash_invita'); }catch(e){} cerrar('dlgInv'); b.disabled=false; pintarHomeRec();
+      setSt({esProveedor:true}); if(!cfg().uso) ponerUso('prov'); try{ sessionStorage.removeItem('flash_invita'); }catch(e){} cerrar('dlgInv'); b.disabled=false; pintarHomeRec();
       toast('Listo: ya recibes los pedidos de '+(r.vendedor||'tu vendedor')); if(!pasosApk()) abrirRecibidos(); sync(); activarPush(false);
     }).catch(function(e){ b.disabled=false;
       $('invSt').textContent=/codigo_invalido/.test(e.message)?'Esa invitación no existe o ya no es válida.':/codigo_usado/.test(e.message)?'Esa invitación ya la usó otra persona. Pide una nueva.':/mismo_usuario/.test(e.message)?'Esta invitación es tuya: ábrela en el teléfono de tu proveedor.':'No se pudo conectar: '+e.message; });
@@ -2732,7 +2768,10 @@ var FlashNube=(function(){
 
   /* ── vista del proveedor ── */
   var rec=[], recFiltro='activos';
+  function pintarHomeProv(){ var s=st(), sc=$('provSinCon'); if(sc) sc.hidden=!!(s && s.clave && s.esProveedor); }
+  function abrirInvitacion(c){ try{ sessionStorage.setItem('flash_invita',String(c).toUpperCase()); }catch(e){} revisarInvitacion(); }
   function pintarHomeRec(){
+    pintarHomeProv();
     var s=st(), b=$('goRec'); b.hidden=!(s && s.clave && s.esProveedor);
     var n=rec.filter(function(r){ return r.estado!=='cobrada'; }).length; $('recN').textContent=n?'('+n+')':'';
   }
@@ -2790,7 +2829,7 @@ var FlashNube=(function(){
   setInterval(function(){ if(document.visibilityState==='visible' && st() && st().clave) alVolver(); },60000);
   function iniciar(){ var s=st(); if(s && s.enlaces) enlaces=s.enlaces; pintarHomeRec(); revisarInvitacion(); pintarPush(); if(s && s.clave){ sync(); if(s.esProveedor) cargarRecibidos(); revisarPush(); }
     var m=location.search.match(/[?&]ver=(recibidos|historial)/); if(m){ try{ history.replaceState(null,'',location.pathname); }catch(e){} if(s&&s.clave) setTimeout(function(){ abrirDesdeAviso(m[1]); },300); } }
-  return {cambio:cambio,sync:sync,publicar:publicar,conectado:conectado,pintarAjustes:pintarAjustes,pintarConectar:pintarConectar,iniciar:iniciar,rpc:rpc,_st:st};
+  return {pintarHomeProv:pintarHomeProv,abrirInvitacion:abrirInvitacion,cambio:cambio,sync:sync,publicar:publicar,conectado:conectado,pintarAjustes:pintarAjustes,pintarConectar:pintarConectar,iniciar:iniciar,rpc:rpc,_st:st};
 })();
 window.FlashNube=FlashNube;
 
@@ -2799,7 +2838,27 @@ cur=load(K.draft,null);
 if(!cur||!Array.isArray(cur.items)) cur=pedidoVacio();
 if(!cur.cli) cur.cli={nombre:'',tel:'',dir:''};
 if(!cur.modo) cur.modo=cur.estado==='cotizada'?'cliente':'proveedor';
-pintarForm(); pintarMeta(); irInicio(); FlashNube.iniciar(); GastoRic.vaciar();
+/* ═════════ Modo de uso: proveedor o vendedor ═════════ */
+function usoActual(){ return cfg().uso||''; }
+function aplicarUso(){ document.body.classList.toggle('uso-prov',usoActual()==='prov'); var c=$('cUsoVend'); if(c) c.checked=usoActual()!=='prov'; if(window.FlashNube) FlashNube.pintarHomeProv(); }
+function ponerUso(u){ setCfg({uso:u}); aplicarUso(); }
+function decidirUso(){
+  if(usoActual()) return;
+  var ns=window.FlashNube?FlashNube._st():null, inv=/[?&]invita=/.test(location.search); try{ inv=inv||!!sessionStorage.getItem('flash_invita'); }catch(e){}
+  if(ventas().length || provs().length){ ponerUso('vend'); return; }
+  if(ns && ns.esProveedor){ ponerUso('prov'); return; }
+  if(inv){ ponerUso('prov'); return; }
+  var d=$('dlgUso'); d.addEventListener('cancel',function(e){ e.preventDefault(); }); abrir('dlgUso');
+}
+$('usoProv').onclick=function(){ ponerUso('prov'); cerrar('dlgUso'); toast('Listo. Cuando tu vendedor te invite, sus pedidos llegarán aquí'); };
+$('usoVend').onclick=function(){ ponerUso('vend'); cerrar('dlgUso'); };
+$('cUsoVend').addEventListener('change',function(){ ponerUso(this.checked?'vend':'prov'); toast(this.checked?'Modo vendedor activado':'Modo solo proveedor'); });
+$('provConectar').onclick=function(){
+  var t=$('provCodigo').value.trim(), m=t.match(/invita=([A-Za-z0-9]{6,12})/)||t.match(/^([A-Za-z0-9]{6,12})$/);
+  if(!m){ toast('Pega el enlace completo que te llegó por WhatsApp'); return; }
+  FlashNube.abrirInvitacion(m[1]); $('provCodigo').value='';
+};
+pintarForm(); pintarMeta(); irInicio(); FlashNube.iniciar(); GastoRic.vaciar(); aplicarUso(); decidirUso();
 if(!provs().length) setTimeout(function(){ toast('Empieza agregando a tus proveedores','Agregar',function(){ abrirProvForm(null,true); }); },600);
 
 /* Service worker con aviso de actualización */
