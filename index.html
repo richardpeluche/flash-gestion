@@ -2410,7 +2410,12 @@ var FlashNube=(function(){
     rpc('flash_invitar',{p_clave:s.clave,p_prov_id:provId,p_nombre:p.nombre}).then(function(r){
       var en=s.enlaces||{}; en[provId]={prov_id:provId,codigo:r.codigo,conectado:r.conectado}; setSt({enlaces:en});
       var link=location.origin+location.pathname.replace(/index\.html$/,'')+'?invita='+r.codigo;
-      var msg='Hola '+p.nombre+', te invito a Flash para recibir mis pedidos directo en tu teléfono, con cantidades, precios e imágenes.\n\nÁbrelo aquí: '+link+'\n\n— '+(emp().rep||s.nombre||'');
+      var msg='Hola '+p.nombre+', te invito a Flash para recibir mis pedidos directo en tu teléfono, con cantidades, precios e imágenes.\n\n'+
+        '*Cómo conectarte:*\n'+
+        '1. Abre este enlace en *Chrome* (si se abre en otro navegador, toca los 3 puntos → Abrir en Chrome):\n'+link+'\n'+
+        '2. Escribe tu nombre y tu WhatsApp, y toca *Aceptar invitación*.\n'+
+        '3. Para tenerla como app: en Chrome toca ⋮ → *Instalar app*. Si no te deja, usa *Crear acceso directo*; funciona igual.\n\n'+
+        'Mis pedidos te aparecen en *Pedidos recibidos*. Ahí marcas cuando está en producción, entregado y cuando pagas la comisión.\n\n— '+(emp().rep||s.nombre||'');
       var t=telWA(p.tel); window.open(t?('https://wa.me/'+t+'?text='+encodeURIComponent(msg)):('https://wa.me/?text='+encodeURIComponent(msg)),'_blank');
       pintarConectar(provId);
     }).catch(function(e){ toast('No se pudo crear la invitación: '+e.message); });
