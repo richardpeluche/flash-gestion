@@ -338,6 +338,8 @@ dialog::backdrop{background:oklch(0.15 0.02 272 / .55)}
 .prev{background:oklch(0.97 0.02 152);border:1px solid oklch(0.88 0.05 152);border-radius:var(--r);padding:12px 14px;
   font-size:14px;white-space:pre-wrap;line-height:1.45;max-height:42dvh;overflow:auto;font-family:var(--font)}
 a.btn{text-decoration:none}
+.aviso-push{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 14px;border-radius:14px;border:1.5px dashed oklch(0.75 0.06 272);background:var(--surface);color:var(--text);font:inherit;font-size:14px;line-height:1.35;cursor:pointer}
+.aviso-push .ic{width:24px;height:24px;flex:none;color:var(--ink)}
 .pasos{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:10px;font-size:15px;line-height:1.45}
 .check{display:flex;align-items:flex-start;gap:10px;min-height:44px;padding:8px 0;font-size:14.5px;cursor:pointer}
 .check input{width:22px;height:22px;flex:none;accent-color:var(--ink);margin-top:1px}
@@ -394,6 +396,7 @@ a.btn{text-decoration:none}
   <symbol id="i-save" viewBox="0 0 24 24"><path d="M5 3h11l3 3v13a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V3Z"/><path d="M8 3v5h7V3"/><path d="M8 21v-7h8v7"/></symbol>
   <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3v5h5"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2Z"/><path d="M12 11v6"/><path d="M9 14h6"/></symbol>
   <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol>
   <symbol id="i-dl" viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></symbol>
   <symbol id="i-ul" viewBox="0 0 24 24"><path d="M12 21V9"/><path d="m7 14 5-5 5 5"/><path d="M5 3h14"/></symbol>
   <symbol id="i-book" viewBox="0 0 24 24"><path d="M6 3h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><circle cx="11.5" cy="10" r="2.5"/><path d="M7.5 16.5a4 4 0 0 1 8 0"/><path d="M4 7h2"/><path d="M4 12h2"/><path d="M4 17h2"/></symbol>
@@ -440,6 +443,7 @@ a.btn{text-decoration:none}
     <span class="path-t"><b>Pedidos recibidos <span id="recN"></span></b><span>Lo que tus vendedores te piden por la app</span></span>
   </button>
   <button class="cont" id="goSeguir" type="button" hidden></button>
+  <button class="aviso-push" id="homePush" type="button" hidden><svg class="ic"><use href="#i-bell"/></svg><span><b>Activa las notificaciones</b><br>Entérate al instante de pedidos y cambios de estado.</span></button>
   <div class="home-links">
     <button class="btn btn-ghost" id="homeHist"><svg class="ic"><use href="#i-hist"/></svg>Historial</button>
     <button class="btn btn-ghost" id="homeRep"><svg class="ic"><use href="#i-chart"/></svg>Comisiones</button>
@@ -806,7 +810,7 @@ a.btn{text-decoration:none}
         <h3>Zona de cuidado</h3>
         <button class="btn btn-danger" id="cBorrarTodo"><svg class="ic"><use href="#i-trash"/></svg>Borrar todos los datos</button>
       </div>
-      <p class="hint" style="text-align:center">flash-gestion · v1.7</p>
+      <p class="hint" style="text-align:center">flash-gestion · v1.8</p>
     </div>
   </div>
 </dialog>
@@ -820,6 +824,7 @@ a.btn{text-decoration:none}
         <button data-rf="activos" aria-pressed="true">Pendientes</button>
         <button data-rf="todos" aria-pressed="false">Todos</button>
       </div>
+      <button class="aviso-push" id="recPush" type="button" hidden><svg class="ic"><use href="#i-bell"/></svg><span><b>Activa las notificaciones</b><br>Te avisamos apenas llegue un pedido nuevo.</span></button>
       <p class="hint" id="recSt" aria-live="polite"></p>
       <div id="recLista" style="display:flex;flex-direction:column;gap:10px"></div>
     </div>
@@ -2554,7 +2559,55 @@ var FlashNube=(function(){
       setSt({clave:clave,id:y.id,nombre:y.nombre,desde:null,imgsSubidas:{},esProveedor:y.proveedorDe>0}); return sync();
     });
   }
-  function salir(){ try{ localStorage.removeItem(KN); localStorage.removeItem(KH); }catch(e){} enlaces={}; pintarAjustes(); pintarHomeRec(); }
+  function salir(){ desactivarPush(); try{ localStorage.removeItem(KN); localStorage.removeItem(KH); }catch(e){} enlaces={}; pintarAjustes(); pintarHomeRec(); }
+
+  /* ── notificaciones push ── */
+  function pushSoportado(){ return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window; }
+  function b64u(t){ var p='='.repeat((4-t.length%4)%4), r=atob((t+p).replace(/-/g,'+').replace(/_/g,'/')), a=new Uint8Array(r.length); for(var i=0;i<r.length;i++) a[i]=r.charCodeAt(i); return a; }
+  function regSW(){ return navigator.serviceWorker.ready; }
+  function guardarSub(sub){ var j=sub.toJSON(), s=st(); if(!s||!s.clave) return Promise.resolve(false);
+    return rpc('flash_push_guardar',{p_clave:s.clave,p_endpoint:j.endpoint,p_p256dh:j.keys.p256dh,p_auth:j.keys.auth}).then(function(){ setSt({push:true,pushAt:Date.now()}); return true; }); }
+  function activarPush(manual){
+    var s=st(); if(!s||!s.clave){ if(manual) toast('Primero activa tu cuenta en la nube'); return Promise.resolve(false); }
+    if(!pushSoportado()){ if(manual) toast('Este navegador no permite notificaciones'); return Promise.resolve(false); }
+    return Promise.resolve(Notification.permission==='granted'?'granted':Notification.requestPermission()).then(function(perm){
+      if(perm!=='granted'){ if(manual) toast(perm==='denied'?'Las notificaciones están bloqueadas: actívalas en los permisos de la app':'No se activaron las notificaciones'); pintarPush(); return false; }
+      return Promise.all([regSW(),rpc('flash_push_vapid',{})]).then(function(r){ var reg=r[0], pub=r[1]; if(!pub) throw new Error('servidor sin llave');
+        return reg.pushManager.getSubscription().then(function(sub){ return sub||reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(pub)}); }); })
+        .then(guardarSub).then(function(ok){ if(manual && ok) toast('Notificaciones activadas'); pintarPush(); return ok; });
+    }).catch(function(e){ if(manual) toast('No se pudieron activar: '+e.message); pintarPush(); return false; });
+  }
+  function desactivarPush(){
+    if(!pushSoportado()) return Promise.resolve();
+    var s=st(); setSt({push:false});
+    return regSW().then(function(reg){ return reg.pushManager.getSubscription(); }).then(function(sub){ if(!sub) return;
+      var ep=sub.endpoint; return sub.unsubscribe().then(function(){ if(s&&s.clave) return rpc('flash_push_quitar',{p_clave:s.clave,p_endpoint:ep}); }); })
+      .catch(function(){}).then(function(){ pintarPush(); });
+  }
+  function revisarPush(){
+    var s=st(); if(!s||!s.clave||!pushSoportado()||Notification.permission!=='granted'||s.push===false) return;
+    regSW().then(function(reg){ return reg.pushManager.getSubscription(); }).then(function(sub){
+      if(!sub) return activarPush(false);
+      if(!s.pushAt || Date.now()-s.pushAt>86400000*3) return guardarSub(sub);
+    }).catch(function(){});
+  }
+  function pintarPush(){
+    var s=st(), con=!!(s&&s.clave), sop=pushSoportado(), perm=sop?Notification.permission:'denied', on=con&&sop&&perm==='granted'&&s.push;
+    var falta=con&&sop&&!on&&perm!=='denied';
+    ['homePush','recPush'].forEach(function(id){ var b=$(id); if(b) b.hidden=!falta; });
+    var st_=$('nPushSt'), acc=$('nPushAcc'); if(!st_) return;
+    if(!sop){ st_.textContent='Este navegador no permite notificaciones.'; acc.innerHTML=''; return; }
+    if(perm==='denied'){ st_.textContent='Están bloqueadas. Actívalas en Ajustes del teléfono → Apps → Flash (o Chrome) → Notificaciones.'; acc.innerHTML=''; return; }
+    st_.textContent=on?'Activadas en este teléfono: te avisamos de pedidos nuevos y cambios de estado.':'Desactivadas en este teléfono.';
+    acc.innerHTML=on?'<button class="btn btn-ghost btn-sm" id="nPushOff">Desactivar</button>':'<button class="btn btn-ink btn-sm" id="nPush"><svg class="ic"><use href="#i-bell"/></svg>Activar notificaciones</button>';
+  }
+  function abrirDesdeAviso(ver){
+    if(ver==='recibidos') abrirRecibidos();
+    else if(ver==='historial'){ sync().then(function(){ $('btnHist').click(); }); }
+  }
+  if('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message',function(e){
+    var d=e.data||{}; if(d.type==='push'){ alVolver(); } else if(d.type==='abrir'){ abrirDesdeAviso(d.ver); }
+  });
 
   /* ── UI ajustes ── */
   function pintarEstadoNube(msg){
@@ -2578,8 +2631,9 @@ var FlashNube=(function(){
       '<div class="clave" id="nClaveVer">••••••••••••••••</div>'+
       '<div class="foot-actions"><button class="btn btn-ghost btn-sm" id="nMostrar">Mostrar</button><button class="btn btn-ghost btn-sm" id="nCopiar"><svg class="ic"><use href="#i-copy"/></svg>Copiar clave</button></div>'+
       '<p class="hint warn">Guárdala en un lugar seguro. Quien la tenga puede ver tus datos, y sin ella no puedes recuperar la cuenta.</p>'+
-      '<div class="foot-actions"><button class="btn btn-ink" id="nSync"><svg class="ic"><use href="#i-repeat"/></svg>Sincronizar</button><button class="btn btn-ghost" id="nSalir">Cerrar sesión aquí</button></div>';
-    pintarEstadoNube();
+      '<div class="foot-actions"><button class="btn btn-ink" id="nSync"><svg class="ic"><use href="#i-repeat"/></svg>Sincronizar</button><button class="btn btn-ghost" id="nSalir">Cerrar sesión aquí</button></div>'+
+      '<span class="lbl" style="margin-top:6px">Notificaciones</span><p class="hint" id="nPushSt"></p><div class="foot-actions" id="nPushAcc"></div>';
+    pintarEstadoNube(); pintarPush();
   }
   document.addEventListener('click',function(e){
     var t=e.target.closest('button'); if(!t) return;
@@ -2590,6 +2644,8 @@ var FlashNube=(function(){
     else if(t.id==='nMostrar'){ var v=$('nClaveVer'); if(v.textContent.indexOf('FL-')===0){ v.textContent='••••••••••••••••'; t.textContent='Mostrar'; } else { v.textContent=st().clave; t.textContent='Ocultar'; } }
     else if(t.id==='nCopiar'){ copiar(st().clave,'Clave copiada'); }
     else if(t.id==='nSync'){ pintarEstadoNube('Sincronizando…'); sync().then(function(ok){ if(ok){ toast('Sincronizado'); pintarForm(); } }); }
+    else if(t.id==='nPush' || t.id==='homePush' || t.id==='recPush'){ activarPush(true); }
+    else if(t.id==='nPushOff'){ desactivarPush().then(function(){ toast('Notificaciones desactivadas en este teléfono'); }); }
     else if(t.id==='nSalir'){ if(confirm('Cerrar la sesión en este dispositivo? Tus datos quedan aquí y en la nube. Para volver a entrar necesitas tu clave.')) salir(); }
     else if(t.id==='pvInvitar'){ invitar(t.getAttribute('data-prov')); }
   });
@@ -2655,7 +2711,7 @@ var FlashNube=(function(){
     b.disabled=true; $('invSt').textContent='Conectando…';
     paso.then(function(clave){ return rpc('flash_aceptar',{p_clave:clave,p_codigo:codigoInv}); }).then(function(r){
       setSt({esProveedor:true}); try{ sessionStorage.removeItem('flash_invita'); }catch(e){} cerrar('dlgInv'); b.disabled=false; pintarHomeRec();
-      toast('Listo: ya recibes los pedidos de '+(r.vendedor||'tu vendedor')); if(!pasosApk()) abrirRecibidos(); sync();
+      toast('Listo: ya recibes los pedidos de '+(r.vendedor||'tu vendedor')); if(!pasosApk()) abrirRecibidos(); sync(); activarPush(false);
     }).catch(function(e){ b.disabled=false;
       $('invSt').textContent=/codigo_invalido/.test(e.message)?'Esa invitación no existe o ya no es válida.':/codigo_usado/.test(e.message)?'Esa invitación ya la usó otra persona. Pide una nueva.':/mismo_usuario/.test(e.message)?'Esta invitación es tuya: ábrela en el teléfono de tu proveedor.':'No se pudo conectar: '+e.message; });
   };
@@ -2718,7 +2774,8 @@ var FlashNube=(function(){
   document.addEventListener('visibilitychange',alVolver);
   window.addEventListener('online',alVolver);
   setInterval(function(){ if(document.visibilityState==='visible' && st() && st().clave) alVolver(); },60000);
-  function iniciar(){ var s=st(); if(s && s.enlaces) enlaces=s.enlaces; pintarHomeRec(); revisarInvitacion(); if(s && s.clave){ sync(); if(s.esProveedor) cargarRecibidos(); } }
+  function iniciar(){ var s=st(); if(s && s.enlaces) enlaces=s.enlaces; pintarHomeRec(); revisarInvitacion(); pintarPush(); if(s && s.clave){ sync(); if(s.esProveedor) cargarRecibidos(); revisarPush(); }
+    var m=location.search.match(/[?&]ver=(recibidos|historial)/); if(m){ try{ history.replaceState(null,'',location.pathname); }catch(e){} if(s&&s.clave) setTimeout(function(){ abrirDesdeAviso(m[1]); },300); } }
   return {cambio:cambio,sync:sync,publicar:publicar,conectado:conectado,pintarAjustes:pintarAjustes,pintarConectar:pintarConectar,iniciar:iniciar,rpc:rpc,_st:st};
 })();
 window.FlashNube=FlashNube;
