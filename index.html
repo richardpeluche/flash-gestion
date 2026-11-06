@@ -211,6 +211,8 @@ body:not(.uso-prov) .solo-uprov{display:none!important}
 .path-com .path-t span{color:var(--muted)}
 body.modo-com .no-com{display:none!important}
 body:not(.modo-com) .solo-com{display:none!important}
+.cont.cont-ok{background:var(--surface);border-color:var(--line);font-weight:600}
+.cont small{font-weight:500;color:var(--muted)}
 .cont{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:52px;padding:0 16px;border-radius:var(--r);background:var(--volt-soft);border:1px solid oklch(0.88 0.1 108);font-weight:650;color:var(--ink);text-align:left}
 .home-links{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
 .logo-prev{width:72px;height:72px;border-radius:12px;border:1px dashed var(--line-strong);display:grid;place-items:center;overflow:hidden;background:var(--surface);flex:none;color:var(--muted);font-size:12px;text-align:center}
@@ -832,7 +834,7 @@ a.btn{text-decoration:none}
         <h3>Zona de cuidado</h3>
         <button class="btn btn-danger" id="cBorrarTodo"><svg class="ic"><use href="#i-trash"/></svg>Borrar todos los datos</button>
       </div>
-      <p class="hint" style="text-align:center">flash-gestion · v1.12</p>
+      <p class="hint" style="text-align:center">flash-gestion · v1.13</p>
     </div>
   </div>
 </dialog>
@@ -1333,9 +1335,13 @@ function empezar(modo){
 function mostrarForm(){ document.body.classList.remove('en-inicio'); }
 function irInicio(){
   persistirBorrador(); pintarMeta();
-  var s=$('goSeguir'), hay=cur.items.length>0;
-  s.hidden=!hay;
-  if(hay) s.innerHTML='<span>Continuar '+(cur.modo==='cliente'?'cotización':cur.modo==='compra'?'compra':'pedido')+' '+etqDe(cur)+' · '+cur.items.length+' producto'+(cur.items.length===1?'':'s')+'</span><svg class="ic"><use href="#i-down"/></svg>';
+  var g=cur.id?ventas().filter(function(v){ return v.id===cur.id; })[0]:null;
+  if(cur.id && !g){ cur=pedidoVacio(cur.modo); persistirBorrador(); }
+  else if(g && !cur.sucio && g.estado!==cur.estado){ cur.estado=g.estado; persistirBorrador(); }
+  var s=$('goSeguir'), hay=cur.items.length>0, tipo=cur.modo==='cliente'?'cotización':cur.modo==='compra'?'compra':'pedido';
+  s.hidden=!hay; s.classList.toggle('cont-ok',!!(g && !cur.sucio));
+  if(hay) s.innerHTML='<span>'+(!cur.id?'Continuar '+tipo+' '+etqDe(cur)+' · '+cur.items.length+' producto'+(cur.items.length===1?'':'s')+' <small>· sin guardar</small>':
+    cur.sucio?'Cambios sin guardar en '+etqDe(cur):'Ver '+etqDe(cur)+' <small>· '+estTxt(cur.estado,cur.modo)+' · ya guardado</small>')+'</span><svg class="ic"><use href="#i-down"/></svg>';
   document.body.classList.add('en-inicio'); window.scrollTo({top:0});
 }
 $('goProv').onclick=function(){ empezar('proveedor'); };
