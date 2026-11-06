@@ -437,6 +437,10 @@ dialog::backdrop{background:oklch(0.15 0.02 272 / .55)}
   <section class="totals" aria-label="Totales">
     <div class="t-row"><span>Total a precio de fábrica</span><b class="money" id="tFab">$0,00</b></div>
     <div class="t-row"><span>Total al público</span><b class="money" id="tPub">$0,00</b></div>
+    <div class="t-row"><span style="display:flex;align-items:center;gap:8px">IVA
+      <select id="fIva" class="inp" style="min-height:36px;width:auto;padding:4px 30px 4px 10px;font-size:14px;background-position:right 6px center" aria-label="Tasa de IVA">
+        <option value="0">0%</option><option value="12">12%</option><option value="15">15%</option></select></span><b class="money" id="tIva">$0,00</b></div>
+    <div class="t-row"><span>Total al cliente con IVA</span><b class="money" id="tCli">$0,00</b></div>
     <div class="t-row t-gain" id="tGainRow"><div><span>Tu ganancia</span><small id="tMargen">—</small></div><b class="money" id="tGain">$0,00</b></div>
   </section>
 
@@ -640,6 +644,8 @@ dialog::backdrop{background:oklch(0.15 0.02 272 / .55)}
               <option value="#4A148C">Violeta</option><option value="#BF360C">Rojo</option><option value="#37474F">Gris</option><option value="#1b1d2e">Negro</option>
             </select></div>
         </div>
+        <div class="field"><label for="eIva">IVA por defecto</label>
+          <select id="eIva" class="inp"><option value="0">0%</option><option value="12">12%</option><option value="15">15%</option></select></div>
         <div class="field"><label for="eCond">Condiciones (pie de la cotización)</label><textarea id="eCond" class="inp" placeholder="Precios válidos por 15 días. Entrega a convenir."></textarea></div>
       </div>
       <div class="cfg-sec">
@@ -764,8 +770,9 @@ var CLI_CAMPOS=['nombre','tel','dir','empresa','ruc','mail','atendido'];
 function cliVacio(){ var o={}; CLI_CAMPOS.forEach(function(k){ o[k]=''; }); o.atendido=emp().rep||''; return o; }
 function cliDe(c){ var o={}; c=c||{}; CLI_CAMPOS.forEach(function(k){ o[k]=String(c[k]||'').trim(); }); return o; }
 var CLI_IDS={nombre:'fCli',tel:'fCliTel',dir:'fCliDir',empresa:'fCliEmp',ruc:'fCliRuc',mail:'fCliMail',atendido:'fCliAt'};
+function totales(v){ var sub=calc(v.items).pub, t=num(v.iva), iv=Math.round(sub*t)/100; return {sub:sub,tasa:t,iva:iv,total:sub+iv}; }
 function pedidoVacio(modo){
-  return {id:null,modo:modo||'proveedor',num:siguienteNum(),fecha:hoyISO(),provId:cfg().ultimoProv||'',
+  return {id:null,iva:num(cfg().ivaDef),modo:modo||'proveedor',num:siguienteNum(),fecha:hoyISO(),provId:cfg().ultimoProv||'',
           cli:cliVacio(),items:[],notas:'',estado:'borrador',sucio:false};
 }
 function persistirBorrador(){ save(K.draft,cur); }
@@ -850,6 +857,7 @@ var ultimaGan=null;
 function pintarTotales(){
   var r=calc(cur.items);
   $('tFab').textContent=money(r.fab); $('tPub').textContent=money(r.pub);
+  var ti=totales(cur); $('fIva').value=String(ti.tasa); $('tIva').textContent=money(ti.iva); $('tCli').textContent=money(ti.total);
   $('tGain').textContent=money(r.gan);
   $('tGainRow').classList.toggle('neg',r.gan<0);
   $('tMargen').textContent=r.sinFab?'Falta precio de fábrica en algún producto':(r.fab>0?('Margen '+NF.format(r.gan/r.fab*100).replace(/,00$/,'')+'% sobre fábrica'):'—');
@@ -898,6 +906,7 @@ $('fEstado').addEventListener('change',function(){ cur.estado=this.value; marcar
 Object.keys(CLI_IDS).forEach(function(k){
   $(CLI_IDS[k]).addEventListener('input',function(){ cur.cli[k]=this.value; marcarSucio(); pintarCliResumen(); });
 });
+$('fIva').addEventListener('change',function(){ cur.iva=num(this.value); marcarSucio(); pintarTotales(); });
 $('fNotas').addEventListener('input',function(){ cur.notas=this.value; marcarSucio(); });
 $('btnAddManual').onclick=function(){ agregarItem({desc:'',qty:1},true); };
 $('btnAddCat').onclick=function(){ abrirCatalogo('elegir'); };
@@ -925,7 +934,7 @@ function guardar(silencioso, sinProveedor){
   var p=provPorId(cur.provId)||{nombre:'',tel:''}, a=ventas(), ahora=new Date().toISOString();
   var reg={id:cur.id||uid(),num:cur.num,fecha:cur.fecha,provId:cur.provId,provNombre:p.nombre,provTel:p.tel||'',
     cli:cliDe(cur.cli),
-    items:cur.items,notas:cur.notas.trim(),estado:cur.estado,modo:cur.modo||'proveedor',actualizado:ahora};
+    items:cur.items,iva:num(cur.iva),notas:cur.notas.trim(),estado:cur.estado,modo:cur.modo||'proveedor',actualizado:ahora};
   var i=-1; a.forEach(function(v,k){ if(v.id===reg.id) i=k; });
   if(i>-1){ reg.creado=a[i].creado; reg.enviadoAt=a[i].enviadoAt||''; reg.cobradoAt=a[i].cobradoAt||''; reg.cotizadoAt=a[i].cotizadoAt||''; a[i]=reg; }
   else{
@@ -1044,13 +1053,14 @@ function logo(){ try{ return localStorage.getItem(K.logo)||''; }catch(e){ return
 function setLogo(d){ try{ if(d) localStorage.setItem(K.logo,d); else localStorage.removeItem(K.logo); return true; }catch(e){ toast('El logo es muy pesado para guardarlo'); return false; } }
 function pintarEmp(){
   var e=emp(), l=logo();
-  $('eNombre').value=e.nombre; $('eRep').value=(cfg().emp||{}).rep||''; $('eTel').value=e.tel; $('eWeb').value=e.web; $('eColor').value=e.color; $('eCond').value=e.cond;
+  $('eIva').value=String(num(cfg().ivaDef)); $('eNombre').value=e.nombre; $('eRep').value=(cfg().emp||{}).rep||''; $('eTel').value=e.tel; $('eWeb').value=e.web; $('eColor').value=e.color; $('eCond').value=e.cond;
   $('eLogoPrev').innerHTML=l?'<img src="'+l+'" alt="Logo">':'Sin logo';
   $('eLogoQuitar').hidden=!l;
 }
 [['eNombre','nombre'],['eRep','rep'],['eTel','tel'],['eWeb','web'],['eColor','color'],['eCond','cond']].forEach(function(x){
   $(x[0]).addEventListener('change',function(){ var o={}; o[x[1]]=this.value.trim(); setEmp(o); });
 });
+$('eIva').addEventListener('change',function(){ setCfg({ivaDef:num(this.value)}); toast('IVA por defecto: '+this.value+'%'); });
 $('eLogoBtn').onclick=function(){ $('eLogoFile').click(); };
 $('eLogoQuitar').onclick=function(){ setLogo(''); pintarEmp(); toast('Logo quitado'); };
 $('eLogoFile').onchange=function(ev){
@@ -1132,9 +1142,14 @@ function generarPDF(v){
     doc.setDrawColor(220,222,230); doc.line(M,y,W-M,y); y+=5;
     // total
     if(y>255){ doc.addPage(); y=20; }
+    var tv=totales(v);
+    doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.setTextColor.apply(doc,gris);
+    doc.text('Subtotal',W-M-68,y+4); doc.setTextColor.apply(doc,ink); doc.text(money(tv.sub),W-M-4,y+4,{align:'right'});
+    doc.setTextColor.apply(doc,gris); doc.text('IVA '+q(tv.tasa)+'%',W-M-68,y+10); doc.setTextColor.apply(doc,ink); doc.text(money(tv.iva),W-M-4,y+10,{align:'right'});
+    y+=14;
     doc.setFillColor.apply(doc,col); doc.roundedRect(W-M-72,y,72,12,2,2,'F');
     doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.text('TOTAL',W-M-68,y+7.8);
-    doc.setFontSize(14); doc.text(money(tot.pub),W-M-4,y+8.2,{align:'right'}); y+=20;
+    doc.setFontSize(14); doc.text(money(tv.total),W-M-4,y+8.2,{align:'right'}); y+=20;
     // condiciones
     if(e.cond){ if(y>250){ doc.addPage(); y=20; }
       doc.setTextColor.apply(doc,col); doc.setFont('helvetica','bold'); doc.setFontSize(9.5); doc.text('Condiciones',M,y); y+=5;
@@ -1175,7 +1190,7 @@ function mensajePDF(v){
   if(e.nombre) L.push('*'+e.nombre+'*');
   var pal=(c.nombre||'').trim().split(/\s+/).filter(Boolean);
   L.push('Hola'+(pal.length && pal.length<=3 && !EMPRESA_RX.test(c.nombre)?' '+pal[0]:'')+', te comparto la cotización '+etq(v.num)+'.');
-  L.push('*Total: '+money(calc(v.items).pub)+'*');
+  var tv=totales(v); L.push('*Total: '+money(tv.total)+'*'+(tv.tasa>0?' (incluye IVA '+q(tv.tasa)+'%)':''));
   L.push('Quedo atento a tu confirmación.');
   var f=[e.rep,e.web].filter(Boolean); if(f.length){ L.push(''); f.forEach(function(x){ L.push(x); }); }
   return L.join('\n');
@@ -1418,7 +1433,7 @@ function cargarVenta(v, repetir){
   if(cur.sucio && cur.items.length && cur.id!==v.id && !confirm('El pedido actual tiene cambios sin guardar. ¿Continuar?')) return false;
   cur={id:repetir?null:v.id,modo:v.modo||(v.estado==='cotizada'?'cliente':'proveedor'),num:repetir?siguienteNum():v.num,fecha:repetir?hoyISO():v.fecha,provId:v.provId,
     cli:cliDe(v.cli),
-    items:JSON.parse(JSON.stringify(v.items)),notas:v.notas||'',estado:repetir?'borrador':v.estado,sucio:!!repetir};
+    items:JSON.parse(JSON.stringify(v.items)),iva:num(v.iva),notas:v.notas||'',estado:repetir?'borrador':v.estado,sucio:!!repetir};
   if(!provPorId(cur.provId)) toast('El proveedor de este pedido ya no está registrado');
   persistirBorrador(); ultimaGan=null; pintarForm(); mostrarForm(); window.scrollTo({top:0});
   return true;
