@@ -58,7 +58,8 @@ button,label,summary{-webkit-user-select:none;user-select:none}
 .brand-mark svg{width:20px;height:20px;fill:currentColor;stroke:none}
 .brand-txt{display:flex;flex-direction:column;line-height:1.05}
 .brand-txt b{font-size:19px;letter-spacing:-0.02em}
-.brand-txt span{font-size:11.5px;color:oklch(0.80 0.02 272)}
+.brand-txt span{font-size:11.5px;color:oklch(0.80 0.02 272);white-space:nowrap}
+@media (max-width:430px){.brand-txt span{display:none}.nav-btn{width:42px}}
 .nav-btn{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;color:oklch(0.92 0.01 272);transition:background .15s var(--ease)}
 .nav-btn:hover{background:var(--ink-2)}
 .nav-btn:active{background:var(--ink-3)}
@@ -160,13 +161,37 @@ details.more summary small{font-weight:500;color:var(--muted)}
 .t-gain.neg{background:var(--loss-soft)}.t-gain.neg span,.t-gain.neg b{color:var(--loss)}
 
 .foot-actions{display:flex;gap:8px;flex-wrap:wrap}
+.home{display:none;max-width:760px;margin:0 auto;padding:18px 14px 30px;flex-direction:column;gap:14px}
+body.en-inicio .home{display:flex}
+body.en-inicio main,body.en-inicio .dock{display:none}
+body.en-inicio{padding-bottom:env(safe-area-inset-bottom)}
+.home-h{font-size:26px;letter-spacing:-0.025em;margin-top:8px;text-wrap:balance}
+.path{display:flex;align-items:center;gap:16px;width:100%;text-align:left;border-radius:var(--r-lg);padding:20px 18px;min-height:104px;transition:transform .12s var(--ease),background .15s}
+.path:active{transform:scale(.985)}
+.path-ic{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;flex:none}
+.path-ic .ic{width:28px;height:28px}
+.path-t{display:flex;flex-direction:column;gap:3px}
+.path-t b{font-size:19px;letter-spacing:-0.01em}
+.path-t span{font-size:14px;line-height:1.35}
+.path-prov{background:var(--ink);color:#fff}
+.path-prov .path-ic{background:var(--volt);color:var(--ink)}
+.path-prov .path-t span{color:oklch(0.82 0.02 272)}
+.path-cli{background:var(--surface);border:1.5px solid var(--ink);color:var(--text)}
+.path-cli .path-ic{background:oklch(0.95 0.03 300);color:oklch(0.42 0.13 300)}
+.path-cli .path-t span{color:var(--muted)}
+.cont{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:52px;padding:0 16px;border-radius:var(--r);background:var(--volt-soft);border:1px solid oklch(0.88 0.1 108);font-weight:650;color:var(--ink);text-align:left}
+.home-links{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+.logo-prev{width:72px;height:72px;border-radius:12px;border:1px dashed var(--line-strong);display:grid;place-items:center;overflow:hidden;background:var(--surface);flex:none;color:var(--muted);font-size:12px;text-align:center}
+.logo-prev img{width:100%;height:100%;object-fit:contain}
+.pdf-st{font-size:13.5px;color:var(--muted);display:flex;align-items:center;gap:8px}
+.pdf-st span{overflow-wrap:anywhere;min-width:0}
 .meta{display:block;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px}
 .meta-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13.5px;color:var(--muted)}
 .meta-top b{color:var(--text);font-size:15px}
 .meta-bar{height:10px;border-radius:99px;background:oklch(0.93 0.01 272);margin-top:8px;overflow:hidden}
 .meta-bar i{display:block;height:100%;border-radius:99px;background:var(--gain);transition:width .5s var(--ease)}
 .meta.ok .meta-bar i{background:oklch(0.80 0.17 108)}
-.meta-vacia{color:var(--muted);font-size:14px;display:flex;align-items:center;gap:8px}
+.meta-vacia{color:var(--muted);font-size:14px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .pgrp{border:1px solid var(--line);border-radius:var(--r);padding:12px;display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
 .pgrp-h{display:flex;align-items:center;gap:10px}
 .pgrp-h .row-main b{font-size:16px}
@@ -311,19 +336,42 @@ dialog::backdrop{background:oklch(0.15 0.02 272 / .55)}
   <symbol id="i-dl" viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></symbol>
   <symbol id="i-ul" viewBox="0 0 24 24"><path d="M12 21V9"/><path d="m7 14 5-5 5 5"/><path d="M5 3h14"/></symbol>
   <symbol id="i-book" viewBox="0 0 24 24"><path d="M6 3h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><circle cx="11.5" cy="10" r="2.5"/><path d="M7.5 16.5a4 4 0 0 1 8 0"/><path d="M4 7h2"/><path d="M4 12h2"/><path d="M4 17h2"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11 12 4l8 7"/><path d="M6 10v10h12V10"/><path d="M10 20v-5h4v5"/></symbol>
+  <symbol id="i-truck" viewBox="0 0 24 24"><path d="M3 6h11v10H3z"/><path d="M14 9h4l3 3v4h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+  <symbol id="i-pdf" viewBox="0 0 24 24"><path d="M14 3v5h5"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2Z"/><path d="M8.5 13.5h1.5a1.2 1.2 0 0 1 0 2.4H8.5V13.5Zm0 2.4V18"/><path d="M13 13.5v4.5h1a2 2 0 0 0 0-4.5h-1Z"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></symbol>
   <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
 </svg>
 
 <header class="bar">
-  <div class="brand">
+  <div class="brand" id="brandHome" role="button" tabindex="0" aria-label="Ir al inicio" style="cursor:pointer">
     <div class="brand-mark" aria-hidden="true"><svg><use href="#i-bolt"/></svg></div>
     <div class="brand-txt"><b>flash</b><span>gestión de ventas</span></div>
   </div>
+  <button class="nav-btn" id="btnHome" aria-label="Inicio"><svg class="ic"><use href="#i-home"/></svg></button>
   <button class="nav-btn" id="btnHist" aria-label="Historial de pedidos"><svg class="ic"><use href="#i-hist"/></svg></button>
   <button class="nav-btn" id="btnRep" aria-label="Reporte de comisiones"><svg class="ic"><use href="#i-chart"/></svg></button>
   <button class="nav-btn" id="btnProd" aria-label="Catálogo de productos"><svg class="ic"><use href="#i-box"/></svg></button>
   <button class="nav-btn" id="btnCfg" aria-label="Ajustes y proveedores"><svg class="ic"><use href="#i-set"/></svg></button>
 </header>
+
+<section id="home" class="home" aria-label="Inicio">
+  <button class="meta" id="metaHome" type="button" aria-label="Meta de ganancia del mes"></button>
+  <h1 class="home-h">¿Qué vas a hacer?</h1>
+  <button class="path path-prov" id="goProv" type="button">
+    <span class="path-ic"><svg class="ic"><use href="#i-truck"/></svg></span>
+    <span class="path-t"><b>Pedido a proveedor</b><span>Le pides el producto y registras tu comisión</span></span>
+  </button>
+  <button class="path path-cli" id="goCli" type="button">
+    <span class="path-ic"><svg class="ic"><use href="#i-pdf"/></svg></span>
+    <span class="path-t"><b>Cotización a cliente</b><span>PDF con tu marca y solo tu precio, por WhatsApp</span></span>
+  </button>
+  <button class="cont" id="goSeguir" type="button" hidden></button>
+  <div class="home-links">
+    <button class="btn btn-ghost" id="homeHist"><svg class="ic"><use href="#i-hist"/></svg>Historial</button>
+    <button class="btn btn-ghost" id="homeRep"><svg class="ic"><use href="#i-chart"/></svg>Comisiones</button>
+  </div>
+</section>
 
 <main id="app">
   <section class="head">
@@ -336,7 +384,7 @@ dialog::backdrop{background:oklch(0.15 0.02 272 / .55)}
   <section aria-label="Proveedor y fecha" style="display:flex;flex-direction:column;gap:12px">
     <div class="prov-row">
       <div class="field">
-        <label for="fProv">Proveedor</label>
+        <label for="fProv" id="lblProv">Proveedor</label>
         <select id="fProv" class="inp prov-select"></select>
       </div>
       <button class="icon-btn" id="btnProvNuevo" aria-label="Agregar proveedor"><svg class="ic"><use href="#i-plus"/></svg></button>
@@ -384,12 +432,13 @@ dialog::backdrop{background:oklch(0.15 0.02 272 / .55)}
     <div class="t-row t-gain" id="tGainRow"><div><span>Tu ganancia</span><small id="tMargen">—</small></div><b class="money" id="tGain">$0,00</b></div>
   </section>
 
-  <div class="field"><label for="fNotas">Notas para el proveedor</label><textarea id="fNotas" class="inp" placeholder="Colores, tallas, fecha de entrega…"></textarea></div>
+  <div class="field"><label for="fNotas" id="lblNotas">Notas para el proveedor</label><textarea id="fNotas" class="inp" placeholder="Colores, tallas, fecha de entrega…"></textarea></div>
 
   <div class="foot-actions">
-    <button class="btn btn-ghost" id="btnCotCli" style="flex-basis:100%"><svg class="ic"><use href="#i-user"/></svg>Cotizar al cliente</button>
+    <button class="btn btn-volt" id="btnAceptado" style="flex-basis:100%" hidden><svg class="ic"><use href="#i-check"/></svg>Cliente aceptó: pedir al proveedor</button>
+    <button class="btn btn-ghost" id="btnCotCli" style="flex-basis:100%"><svg class="ic"><use href="#i-pdf"/></svg>Enviar cotización al cliente</button>
     <button class="btn btn-ink" id="btnGuardar"><svg class="ic"><use href="#i-save"/></svg>Guardar</button>
-    <button class="btn btn-ghost" id="btnNueva"><svg class="ic"><use href="#i-file"/></svg>Nuevo pedido</button>
+    <button class="btn btn-ghost" id="btnNueva"><svg class="ic"><use href="#i-home"/></svg>Inicio</button>
   </div>
 </main>
 
@@ -424,12 +473,16 @@ dialog::backdrop{background:oklch(0.15 0.02 272 / .55)}
     <div class="sheet-h"><h2 id="dlgCliT">Cotizar al cliente</h2><button class="x" data-close aria-label="Cerrar"><svg class="ic"><use href="#i-x"/></svg></button></div>
     <div class="sheet-b">
       <div id="cliDestino" class="hint"></div>
-      <p class="hint">El cliente solo ve tu precio. Nada de fábrica ni ganancia.</p>
+      <div class="pdf-st" id="cliPdfSt"><svg class="ic"><use href="#i-pdf"/></svg><span>Preparando PDF…</span></div>
+      <p class="hint" id="cliEmpHint"></p>
+      <span class="lbl">Mensaje que acompaña al PDF</span>
       <div class="prev" id="cliPrev" style="background:oklch(0.97 0.01 272);border-color:var(--line)"></div>
+      <p class="hint">El cliente solo ve tu precio. Nada de fábrica ni ganancia.</p>
     </div>
     <div class="sheet-f">
+      <button class="btn btn-ghost" id="cliVer" disabled><svg class="ic"><use href="#i-pdf"/></svg>Ver PDF</button>
       <button class="btn btn-ghost" id="cliCopiar"><svg class="ic"><use href="#i-copy"/></svg>Copiar texto</button>
-      <button class="btn btn-volt" id="cliAbrir"><svg class="ic"><use href="#i-wa"/></svg>Abrir WhatsApp</button>
+      <button class="btn btn-volt" id="cliAbrir" disabled style="flex-basis:100%"><svg class="ic"><use href="#i-wa"/></svg>Enviar PDF por WhatsApp</button>
     </div>
   </div>
 </dialog>
@@ -556,6 +609,32 @@ dialog::backdrop{background:oklch(0.15 0.02 272 / .55)}
         <p class="hint" id="cContactosHint" hidden>Importar contactos funciona en Chrome de Android. En este navegador agrégalos a mano.</p>
       </div>
       <div class="cfg-sec">
+        <h3>Tu empresa (cotización PDF)</h3>
+        <button class="btn btn-ghost" id="eImportar"><svg class="ic"><use href="#i-dl"/></svg>Usar mis datos de RICCHARY</button>
+        <div style="display:flex;gap:12px;align-items:center">
+          <div class="logo-prev" id="eLogoPrev">Sin logo</div>
+          <div style="display:flex;flex-direction:column;gap:8px;flex:1">
+            <button class="btn btn-ghost btn-sm" id="eLogoBtn">Cargar logo</button>
+            <button class="btn btn-ghost btn-sm" id="eLogoQuitar">Quitar logo</button>
+          </div>
+          <input type="file" id="eLogoFile" accept="image/*" hidden>
+        </div>
+        <div class="field"><label for="eNombre">Nombre de la empresa</label><input id="eNombre" class="inp" placeholder="RICCHARY · Servicios textiles"></div>
+        <div class="grid2">
+          <div class="field"><label for="eRep">Representante</label><input id="eRep" class="inp" placeholder="Richar"></div>
+          <div class="field"><label for="eTel">Teléfono</label><input id="eTel" class="inp" type="tel" inputmode="tel" placeholder="0988928651"></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label for="eWeb">Web o redes</label><input id="eWeb" class="inp" placeholder="richardpeluche.github.io"></div>
+          <div class="field"><label for="eColor">Color del PDF</label>
+            <select id="eColor" class="inp">
+              <option value="#0F8198">Turquesa</option><option value="#1565C0">Azul</option><option value="#1B5E20">Verde</option>
+              <option value="#4A148C">Violeta</option><option value="#BF360C">Rojo</option><option value="#37474F">Gris</option><option value="#1b1d2e">Negro</option>
+            </select></div>
+        </div>
+        <div class="field"><label for="eCond">Condiciones (pie de la cotización)</label><textarea id="eCond" class="inp" placeholder="Precios válidos por 15 días. Entrega a convenir."></textarea></div>
+      </div>
+      <div class="cfg-sec">
         <h3>Meta y cobros</h3>
         <div class="grid2">
           <div class="field"><label for="cMeta">Meta de ganancia al mes</label><input id="cMeta" class="inp num" inputmode="decimal" placeholder="500"></div>
@@ -581,7 +660,7 @@ dialog::backdrop{background:oklch(0.15 0.02 272 / .55)}
         <h3>Zona de cuidado</h3>
         <button class="btn btn-danger" id="cBorrarTodo"><svg class="ic"><use href="#i-trash"/></svg>Borrar todos los datos</button>
       </div>
-      <p class="hint" style="text-align:center">flash-gestion · v1.2</p>
+      <p class="hint" style="text-align:center">flash-gestion · v1.3</p>
     </div>
   </div>
 </dialog>
@@ -633,6 +712,7 @@ function telWA(t){
   if(d.length===9 && d[0]==='9') return '593'+d;
   return d;
 }
+function etq(n){ return 'VENTAS '+String(n).padStart(3,'0'); }
 var ESTADOS={borrador:'Sin enviar',cotizada:'Cotizado al cliente',enviada:'Enviada',entregada:'Entregada',cobrada:'Comisión cobrada'};
 function esReal(e){ return e==='enviada'||e==='entregada'||e==='cobrada'; }
 
@@ -672,8 +752,8 @@ function siguienteNum(){
 
 /* ═════════ Pedido en curso ═════════ */
 var cur=null;
-function pedidoVacio(){
-  return {id:null,num:siguienteNum(),fecha:hoyISO(),provId:cfg().ultimoProv||'',
+function pedidoVacio(modo){
+  return {id:null,modo:modo||'proveedor',num:siguienteNum(),fecha:hoyISO(),provId:cfg().ultimoProv||'',
           cli:{nombre:'',tel:'',dir:''},items:[],notas:'',estado:'borrador',sucio:false};
 }
 function persistirBorrador(){ save(K.draft,cur); }
@@ -695,9 +775,18 @@ function pintarProvHint(){
   if(!telWA(p.tel)){ h.className='hint warn'; h.textContent='Este proveedor no tiene WhatsApp registrado.'; return; }
   h.textContent='WhatsApp: +'+telWA(p.tel)+(p.nota?' · '+p.nota:'');
 }
+function pintarModo(){
+  var cli=cur.modo==='cliente';
+  $('btnEnviar').innerHTML=cli?'<svg class="ic"><use href="#i-pdf"/></svg><span>Enviar cotización</span>':'<svg class="ic"><use href="#i-wa"/></svg><span>Enviar al proveedor</span>';
+  $('lblProv').textContent=cli?'Proveedor (opcional, para calcular tu ganancia)':'Proveedor';
+  $('lblNotas').textContent=cli?'Notas internas (no salen en la cotización)':'Notas para el proveedor';
+  $('btnCotCli').hidden=cli;
+  $('btnAceptado').hidden=!(cli && cur.id && (cur.estado==='cotizada'||cur.estado==='borrador'));
+}
 function pintarCabecera(){
-  $('hTitulo').textContent=cur.id?'Pedido':'Nuevo pedido';
-  $('hNum').textContent='N° '+cur.num;
+  $('hTitulo').textContent=cur.modo==='cliente'?'Cotización':'Pedido';
+  pintarModo();
+  $('hNum').textContent=etq(cur.num);
   var e=$('hEstado'); e.className='chip st-'+cur.estado; e.textContent=ESTADOS[cur.estado];
   $('fEstado').value=cur.estado;
 }
@@ -824,7 +913,7 @@ function guardar(silencioso, sinProveedor){
   var p=provPorId(cur.provId)||{nombre:'',tel:''}, a=ventas(), ahora=new Date().toISOString();
   var reg={id:cur.id||uid(),num:cur.num,fecha:cur.fecha,provId:cur.provId,provNombre:p.nombre,provTel:p.tel||'',
     cli:{nombre:cur.cli.nombre.trim(),tel:cur.cli.tel.trim(),dir:cur.cli.dir.trim()},
-    items:cur.items,notas:cur.notas.trim(),estado:cur.estado,actualizado:ahora};
+    items:cur.items,notas:cur.notas.trim(),estado:cur.estado,modo:cur.modo||'proveedor',actualizado:ahora};
   var i=-1; a.forEach(function(v,k){ if(v.id===reg.id) i=k; });
   if(i>-1){ reg.creado=a[i].creado; reg.enviadoAt=a[i].enviadoAt||''; reg.cobradoAt=a[i].cobradoAt||''; reg.cotizadoAt=a[i].cotizadoAt||''; a[i]=reg; }
   else{
@@ -837,22 +926,41 @@ function guardar(silencioso, sinProveedor){
   if(!saveVentas(a)) return false;
   setCfg({ultimoNum:Math.max(num(cfg().ultimoNum),num(reg.num))}); if(reg.provId) setCfg({ultimoProv:reg.provId}); pintarMeta();
   cur.id=reg.id; cur.sucio=false; persistirBorrador(); pintarCabecera(); pintarItems();
-  if(!silencioso) toast('Pedido N° '+reg.num+' guardado');
+  if(!silencioso) toast(etq(reg.num)+' guardado');
   return reg;
 }
-function nuevoPedido(){
-  var seguir=function(){ cur=pedidoVacio(); persistirBorrador(); ultimaGan=null; pintarForm(); window.scrollTo({top:0,behavior:'smooth'}); };
-  if(cur.sucio && cur.items.length && !confirm('Este pedido tiene cambios sin guardar. ¿Empezar uno nuevo igual?')) return;
-  seguir();
+function empezar(modo){
+  if(cur.sucio && cur.items.length && !cur.id && !confirm(etq(cur.num)+' tiene productos sin guardar. ¿Descartarlo y empezar otro?')) return;
+  if(cur.sucio && cur.items.length && cur.id && !confirm('Hay cambios sin guardar en '+etq(cur.num)+'. ¿Descartarlos?')) return;
+  cur=pedidoVacio(modo); persistirBorrador(); ultimaGan=null; pintarForm(); mostrarForm(); window.scrollTo({top:0});
 }
+function mostrarForm(){ document.body.classList.remove('en-inicio'); }
+function irInicio(){
+  persistirBorrador(); pintarMeta();
+  var s=$('goSeguir'), hay=cur.items.length>0;
+  s.hidden=!hay;
+  if(hay) s.innerHTML='<span>Continuar '+(cur.modo==='cliente'?'cotización':'pedido')+' '+etq(cur.num)+' · '+cur.items.length+' producto'+(cur.items.length===1?'':'s')+'</span><svg class="ic"><use href="#i-down"/></svg>';
+  document.body.classList.add('en-inicio'); window.scrollTo({top:0});
+}
+$('goProv').onclick=function(){ empezar('proveedor'); };
+$('goCli').onclick=function(){ empezar('cliente'); };
+$('goSeguir').onclick=function(){ mostrarForm(); };
+$('btnHome').onclick=irInicio;
+$('brandHome').onclick=irInicio;
+$('homeHist').onclick=function(){ $('btnHist').click(); };
+$('homeRep').onclick=function(){ $('btnRep').click(); };
+$('btnAceptado').onclick=function(){
+  cur.modo='proveedor'; marcarSucio(); pintarCabecera(); window.scrollTo({top:0,behavior:'smooth'});
+  toast(provPorId(cur.provId)?'Revisa el precio de fábrica y toca Enviar al proveedor':'Elige el proveedor y completa el precio de fábrica');
+};
 $('btnGuardar').onclick=function(){ guardar(false); };
-$('btnNueva').onclick=nuevoPedido;
+$('btnNueva').onclick=irInicio;
 
 /* ═════════ Enviar por WhatsApp ═════════ */
 function q(n){ return NF.format(n).replace(/,00$/,''); }
 function mensaje(v, conGanancia){
   var r=calc(v.items), L=[], nombre=(cfg().nombre||'').trim();
-  L.push('*PEDIDO N° '+v.num+'*  ·  '+fechaTxt(v.fecha));
+  L.push('*PEDIDO '+etq(v.num)+'*  ·  '+fechaTxt(v.fecha));
   L.push('Proveedor: '+v.provNombre);
   L.push('');
   v.items.forEach(function(it){
@@ -899,7 +1007,7 @@ $('envAbrir').onclick=function(){
   var p=provPorId(envVenta.provId)||{tel:envVenta.provTel};
   var url='https://wa.me/'+telWA(p.tel)+'?text='+encodeURIComponent(mensaje(envVenta,$('envGanancia').checked));
   window.open(url,'_blank');
-  marcarEnviada(); cerrar('dlgEnviar'); toast('Pedido N° '+envVenta.num+' marcado como enviado');
+  marcarEnviada(); cerrar('dlgEnviar'); toast(etq(envVenta.num)+' marcado como enviado');
 };
 $('envCopiar').onclick=function(){
   var txt=mensaje(envVenta,$('envGanancia').checked);
@@ -909,15 +1017,129 @@ $('envCopiar').onclick=function(){
 };
 function copiarViejo(t){ var x=document.createElement('textarea'); x.value=t; document.body.appendChild(x); x.select(); try{document.execCommand('copy');}catch(e){} x.remove(); }
 $('btnEnviar').onclick=function(){
+  if(cur.modo==='cliente'){ cotizarCliente(); return; }
   if(!validar(true)) return;
   var reg=guardar(true); if(!reg) return;
   abrirEnvio(reg);
 };
 
+/* ═════════ Datos de empresa ═════════ */
+K.logo='flash_logo';
+function emp(){ var c=cfg(); var e=c.emp||{}; return {nombre:e.nombre||'',rep:e.rep||c.nombre||'',tel:e.tel||'',web:e.web||'',color:e.color||'#0F8198',cond:e.cond||''}; }
+function setEmp(o){ var e=cfg().emp||{}; for(var k in o) e[k]=o[k]; setCfg({emp:e}); }
+function logo(){ try{ return localStorage.getItem(K.logo)||''; }catch(e){ return ''; } }
+function setLogo(d){ try{ if(d) localStorage.setItem(K.logo,d); else localStorage.removeItem(K.logo); return true; }catch(e){ toast('El logo es muy pesado para guardarlo'); return false; } }
+function pintarEmp(){
+  var e=emp(), l=logo();
+  $('eNombre').value=e.nombre; $('eRep').value=(cfg().emp||{}).rep||''; $('eTel').value=e.tel; $('eWeb').value=e.web; $('eColor').value=e.color; $('eCond').value=e.cond;
+  $('eLogoPrev').innerHTML=l?'<img src="'+l+'" alt="Logo">':'Sin logo';
+  $('eLogoQuitar').hidden=!l;
+}
+[['eNombre','nombre'],['eRep','rep'],['eTel','tel'],['eWeb','web'],['eColor','color'],['eCond','cond']].forEach(function(x){
+  $(x[0]).addEventListener('change',function(){ var o={}; o[x[1]]=this.value.trim(); setEmp(o); });
+});
+$('eLogoBtn').onclick=function(){ $('eLogoFile').click(); };
+$('eLogoQuitar').onclick=function(){ setLogo(''); pintarEmp(); toast('Logo quitado'); };
+$('eLogoFile').onchange=function(ev){
+  var f=ev.target.files&&ev.target.files[0]; ev.target.value=''; if(!f) return;
+  var rd=new FileReader(); rd.onload=function(){
+    reducirImagen(rd.result,600).then(function(d){ if(setLogo(d)){ pintarEmp(); toast('Logo guardado'); } });
+  }; rd.readAsDataURL(f);
+};
+function reducirImagen(src,max){
+  return new Promise(function(res){
+    var im=new Image(); im.onload=function(){
+      var k=Math.min(1,max/Math.max(im.width,im.height)), c=document.createElement('canvas');
+      c.width=Math.max(1,Math.round(im.width*k)); c.height=Math.max(1,Math.round(im.height*k));
+      c.getContext('2d').drawImage(im,0,0,c.width,c.height); res(c.toDataURL('image/png'));
+    }; im.onerror=function(){ res(''); }; im.src=src;
+  });
+}
+$('eImportar').onclick=function(){
+  var g=function(k){ try{ return (localStorage.getItem(k)||'').trim(); }catch(e){ return ''; } };
+  var n=g('cfg_empresa'), r=g('cfg_representante'), l=g('cfg_logo'), w=g('cfg_link');
+  if(!n && !r && !l && !w){ toast('No encontré datos de RICCHARY en este navegador'); return; }
+  var o={}; if(n) o.nombre=n; if(r) o.rep=r; if(w) o.web=w; setEmp(o);
+  var fin=function(){ pintarEmp(); toast('Datos de RICCHARY cargados'+(l?' con logo':'')); };
+  if(l) reducirImagen(l,600).then(function(d){ if(d) setLogo(d); fin(); }); else fin();
+};
+
+/* ═════════ PDF de cotización ═════════ */
+function cargarJsPDF(){
+  if(window.jspdf) return Promise.resolve(window.jspdf);
+  return new Promise(function(res,rej){ var s=document.createElement('script'); s.src='./jspdf.umd.min.js';
+    s.onload=function(){ res(window.jspdf); }; s.onerror=function(){ rej(new Error('No se pudo cargar el generador de PDF')); }; document.head.appendChild(s); });
+}
+function imgInfo(src){ return new Promise(function(res){ if(!src) return res(null); var im=new Image(); im.onload=function(){ res({src:src,w:im.width,h:im.height}); }; im.onerror=function(){ res(null); }; im.src=src; }); }
+function hexRgb(h){ h=String(h||'#0F8198').replace('#',''); if(h.length===3) h=h.split('').map(function(c){ return c+c; }).join(''); var n=parseInt(h,16); return [(n>>16)&255,(n>>8)&255,n&255]; }
+function aclarar(c,k){ return c.map(function(v){ return Math.round(v+(255-v)*k); }); }
+function nombreArchivo(v){ return 'Cotizacion_'+etq(v.num).replace(' ','_')+(v.cli&&v.cli.nombre?'_'+v.cli.nombre.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9]+/g,'_').slice(0,30):'')+'.pdf'; }
+function generarPDF(v){
+  var e=emp();
+  return Promise.all([cargarJsPDF(),imgInfo(logo())]).then(function(r){
+    var jsPDF=r[0].jsPDF, li=r[1], doc=new jsPDF({unit:'mm',format:'a4'});
+    var W=210, M=15, col=hexRgb(e.color), suave=aclarar(col,0.9), ink=[30,32,46], gris=[95,99,115];
+    var y=14, x=M, tot=calc(v.items);
+    doc.setFillColor.apply(doc,col); doc.rect(0,0,W,5,'F');
+    if(li){ var h=24, w=Math.min(48,h*li.w/li.h); if(w===48) h=48*li.h/li.w; doc.addImage(li.src,'PNG',M,y,w,h); x=M+w+5; }
+    doc.setTextColor.apply(doc,ink); doc.setFont('helvetica','bold'); doc.setFontSize(15);
+    var nom=doc.splitTextToSize(e.nombre||'Mi empresa',95-(x-M)); doc.text(nom,x,y+6);
+    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor.apply(doc,gris);
+    var yy=y+6+nom.length*6; [e.rep,e.tel?'Tel: '+e.tel:'',e.web].filter(Boolean).forEach(function(t){ doc.text(String(t),x,yy); yy+=4.5; });
+    doc.setFont('helvetica','bold'); doc.setFontSize(20); doc.setTextColor.apply(doc,col); doc.text('COTIZACIÓN',W-M,y+7,{align:'right'});
+    doc.setFontSize(11); doc.setTextColor.apply(doc,ink); doc.text(etq(v.num),W-M,y+14,{align:'right'});
+    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor.apply(doc,gris); doc.text('Fecha: '+fechaTxt(v.fecha),W-M,y+19.5,{align:'right'});
+    y=Math.max(y+(li?28:22),yy+2);
+    // cliente
+    var c=v.cli||{}, filas=[['Cliente',c.nombre],['Teléfono',c.tel],['Entrega',c.dir]].filter(function(f){ return f[1]; });
+    if(filas.length){
+      var hb=6+filas.length*5.2; doc.setFillColor.apply(doc,suave); doc.roundedRect(M,y,W-2*M,hb,2,2,'F');
+      doc.setFontSize(9.5); var cy=y+6.5;
+      filas.forEach(function(f){ doc.setFont('helvetica','bold'); doc.setTextColor.apply(doc,col); doc.text(f[0]+':',M+4,cy);
+        doc.setFont('helvetica','normal'); doc.setTextColor.apply(doc,ink); doc.text(String(f[1]).slice(0,90),M+26,cy); cy+=5.2; });
+      y+=hb+6;
+    }
+    // tabla
+    var cx={cant:M+3, desc:M+22, pu:W-M-34, tt:W-M-3}, anchoDesc=W-2*M-22-40;
+    function cabecera(){ doc.setFillColor.apply(doc,col); doc.rect(M,y,W-2*M,8,'F'); doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(255,255,255);
+      doc.text('CANT.',cx.cant,y+5.4); doc.text('DESCRIPCIÓN',cx.desc,y+5.4); doc.text('P. UNIT.',cx.pu,y+5.4,{align:'right'}); doc.text('TOTAL',cx.tt,y+5.4,{align:'right'}); y+=8; }
+    cabecera();
+    doc.setFontSize(10);
+    v.items.forEach(function(it,i){
+      var qn=num(it.qty), pu=num(it.pub), ls=doc.splitTextToSize(String(it.desc),anchoDesc), rh=Math.max(1,ls.length)*4.6+3.4;
+      if(y+rh>262){ doc.addPage(); doc.setFillColor.apply(doc,col); doc.rect(0,0,W,5,'F'); y=15; cabecera(); doc.setFontSize(10); }
+      if(i%2){ doc.setFillColor(246,247,250); doc.rect(M,y,W-2*M,rh,'F'); }
+      doc.setFont('helvetica','normal'); doc.setTextColor.apply(doc,ink);
+      doc.text(q(qn),cx.cant,y+5); doc.text(ls,cx.desc,y+5); doc.text(money(pu),cx.pu,y+5,{align:'right'});
+      doc.setFont('helvetica','bold'); doc.text(money(qn*pu),cx.tt,y+5,{align:'right'}); y+=rh;
+    });
+    doc.setDrawColor(220,222,230); doc.line(M,y,W-M,y); y+=5;
+    // total
+    if(y>255){ doc.addPage(); y=20; }
+    doc.setFillColor.apply(doc,col); doc.roundedRect(W-M-72,y,72,12,2,2,'F');
+    doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.text('TOTAL',W-M-68,y+7.8);
+    doc.setFontSize(14); doc.text(money(tot.pub),W-M-4,y+8.2,{align:'right'}); y+=20;
+    // condiciones
+    if(e.cond){ if(y>250){ doc.addPage(); y=20; }
+      doc.setTextColor.apply(doc,col); doc.setFont('helvetica','bold'); doc.setFontSize(9.5); doc.text('Condiciones',M,y); y+=5;
+      doc.setFont('helvetica','normal'); doc.setTextColor.apply(doc,gris); doc.setFontSize(9); var cl=doc.splitTextToSize(e.cond,W-2*M); doc.text(cl,M,y); y+=cl.length*4.4+6; }
+    // firma
+    if(y>255){ doc.addPage(); y=30; }
+    y=Math.max(y+12,240); doc.setDrawColor.apply(doc,gris); doc.line(M,y,M+70,y);
+    doc.setFont('helvetica','bold'); doc.setFontSize(9.5); doc.setTextColor.apply(doc,ink); doc.text(e.rep||e.nombre||'',M,y+5);
+    doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor.apply(doc,gris); if(e.nombre && e.rep) doc.text(e.nombre,M,y+9.5);
+    var np=doc.getNumberOfPages();
+    for(var pg=1;pg<=np;pg++){ doc.setPage(pg); doc.setFillColor.apply(doc,col); doc.rect(0,292,W,5,'F');
+      if(np>1){ doc.setFontSize(8); doc.setTextColor.apply(doc,gris); doc.text('Página '+pg+' de '+np,W-M,288,{align:'right'}); } }
+    return doc.output('blob');
+  });
+}
+window.FlashPDF=generarPDF;
+
 /* ═════════ Cotización al cliente (solo tu precio) ═════════ */
 function mensajeCliente(v){
   var r=calc(v.items), L=[], nombre=(cfg().nombre||'').trim();
-  L.push('*COTIZACIÓN N° '+v.num+'*  ·  '+fechaTxt(v.fecha));
+  L.push('*COTIZACIÓN '+etq(v.num)+'*  ·  '+fechaTxt(v.fecha));
   if(v.cli && v.cli.nombre) L.push('Para: '+v.cli.nombre);
   L.push('');
   v.items.forEach(function(it){
@@ -931,32 +1153,66 @@ function mensajeCliente(v){
   if(nombre){ L.push(''); L.push('— '+nombre); }
   return L.join('\n');
 }
-var cliVenta=null;
-$('btnCotCli').onclick=function(){
+var EMPRESA_RX=/\b(unidad|colegio|escuela|empresa|cooperativa|coac|cia|ltda|comercial|distribuidora|fundaci[oó]n|asociaci[oó]n|club|liga|instituto|universidad|hospital|cl[ií]nica|gad|municipio)\b/i;
+function mensajePDF(v){
+  var e=emp(), L=[], c=v.cli||{};
+  if(e.nombre) L.push('*'+e.nombre+'*');
+  var pal=(c.nombre||'').trim().split(/\s+/).filter(Boolean);
+  L.push('Hola'+(pal.length && pal.length<=3 && !EMPRESA_RX.test(c.nombre)?' '+pal[0]:'')+', te comparto la cotización '+etq(v.num)+'.');
+  L.push('*Total: '+money(calc(v.items).pub)+'*');
+  L.push('Quedo atento a tu confirmación.');
+  var f=[e.rep,e.web].filter(Boolean); if(f.length){ L.push(''); f.forEach(function(x){ L.push(x); }); }
+  return L.join('\n');
+}
+var cliVenta=null, cliPdf=null, cliUrl='';
+function cotizarCliente(){
   var faltaPrecio=cur.items.some(function(it){ return String(it.desc).trim() && !(num(it.pub)>0); });
   if(faltaPrecio){ toast('Falta tu precio en algún producto'); return; }
   var reg=guardar(true,true); if(!reg) return;
-  cliVenta=reg;
-  var t=telWA(reg.cli.tel);
-  $('cliDestino').innerHTML=t?('Para <b>'+esc(reg.cli.nombre||'el cliente')+'</b> · +'+esc(t)):'Sin teléfono del cliente: al abrir WhatsApp eliges el chat. Puedes agregarlo en «Cliente y entrega».';
-  $('cliPrev').textContent=mensajeCliente(reg);
+  cliVenta=reg; cliPdf=null; if(cliUrl){ URL.revokeObjectURL(cliUrl); cliUrl=''; }
+  var t=telWA(reg.cli.tel), e=emp();
+  $('cliDestino').innerHTML=t?('Para <b>'+esc(reg.cli.nombre||'el cliente')+'</b> · +'+esc(t)):'Sin teléfono del cliente: al compartir eliges el chat.';
+  $('cliEmpHint').innerHTML=(e.nombre||logo())?'':'<span class="hint warn">Aún no cargas los datos de tu empresa. Ve a Ajustes → Tu empresa, o usa «Usar mis datos de RICCHARY».</span>';
+  $('cliPrev').textContent=mensajePDF(reg);
+  $('cliVer').disabled=true; $('cliAbrir').disabled=true; $('cliPdfSt').querySelector('span').textContent='Preparando PDF…';
   abrir('dlgCli');
-};
+  generarPDF(reg).then(function(b){
+    cliPdf=new File([b],nombreArchivo(reg),{type:'application/pdf'}); cliUrl=URL.createObjectURL(b);
+    $('cliPdfSt').querySelector('span').textContent=cliPdf.name+' · '+Math.max(1,Math.round(b.size/1024))+' KB';
+    $('cliVer').disabled=false; $('cliAbrir').disabled=false;
+  }).catch(function(err){ $('cliPdfSt').querySelector('span').textContent='No se pudo crear el PDF: '+err.message; });
+}
+$('btnCotCli').onclick=cotizarCliente;
+$('cliVer').onclick=function(){ if(!cliUrl) return; var w=window.open(cliUrl,'_blank'); if(!w) descargarArchivo(cliPdf); };
+function descargarArchivo(f){ var a=document.createElement('a'); a.href=URL.createObjectURL(f); a.download=f.name; document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },800); }
 $('cliCopiar').onclick=function(){
-  var txt=mensajeCliente(cliVenta), ok=function(){ toast('Texto copiado'); };
+  var txt=mensajePDF(cliVenta), ok=function(){ toast('Texto copiado'); };
   if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(ok,function(){ copiarViejo(txt); ok(); });
   else{ copiarViejo(txt); ok(); }
 };
 $('cliAbrir').onclick=function(){
-  var t=telWA(cliVenta.cli.tel), txt=encodeURIComponent(mensajeCliente(cliVenta));
-  window.open(t?('https://wa.me/'+t+'?text='+txt):('https://wa.me/?text='+txt),'_blank');
+  if(!cliPdf) return;
+  var txt=mensajePDF(cliVenta);
+  if(navigator.canShare && navigator.canShare({files:[cliPdf]})){
+    try{ if(navigator.clipboard) navigator.clipboard.writeText(txt).catch(function(){}); }catch(e){}
+    navigator.share({files:[cliPdf],text:txt,title:etq(cliVenta.num)}).then(marcarCotizada).catch(function(err){ if(err && err.name!=='AbortError') toast('No se pudo compartir: '+err.message); });
+    return;
+  }
+  // PC u otros navegadores: descarga el PDF y abre WhatsApp con el mensaje para adjuntarlo
+  descargarArchivo(cliPdf);
+  var t=telWA(cliVenta.cli.tel), m=encodeURIComponent(txt+'\n\n(Adjunto el PDF de la cotización)');
+  window.open(t?('https://wa.me/'+t+'?text='+m):('https://wa.me/?text='+m),'_blank');
+  marcarCotizada();
+  toast('PDF descargado: adjúntalo en el chat');
+};
+function marcarCotizada(){
   if(cliVenta.estado==='borrador'){
     var a=ventas(); a.forEach(function(v){ if(v.id===cliVenta.id){ v.estado='cotizada'; v.cotizadoAt=new Date().toISOString(); } });
     saveVentas(a);
     if(cur.id===cliVenta.id){ cur.estado='cotizada'; persistirBorrador(); pintarCabecera(); }
   }
-  cerrar('dlgCli'); toast('Cotización N° '+cliVenta.num+' enviada al cliente');
-};
+  cerrar('dlgCli'); toast('Cotización '+etq(cliVenta.num)+' compartida');
+}
 
 /* ═════════ Meta del mes ═════════ */
 var MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
@@ -965,11 +1221,12 @@ function ganMes(){
   ventas().forEach(function(v){ if(esReal(v.estado) && String(v.fecha).indexOf(pre)===0) g+=calc(v.items).gan; });
   return g;
 }
-function pintarMeta(){
-  var box=$('metaBox'), meta=num(cfg().meta), g=ganMes(), mes=MESES[new Date().getMonth()];
+function pintarMeta(){ pintarMetaEn($('metaBox')); pintarMetaEn($('metaHome')); }
+function pintarMetaEn(box){
+  var meta=num(cfg().meta), g=ganMes(), mes=MESES[new Date().getMonth()];
   if(!(meta>0)){
     box.className='meta';
-    box.innerHTML='<span class="meta-vacia"><svg class="ic"><use href="#i-chart"/></svg>Ganancia de '+mes+': <b style="color:var(--gain-strong)">'+money(g)+'</b> · fija una meta</span>';
+    box.innerHTML='<span class="meta-vacia"><svg class="ic"><use href="#i-chart"/></svg>Ganancia de '+mes+': <b style="color:var(--gain-strong)">'+money(g)+'</b><span style="margin-left:auto;color:var(--ink-3);font-weight:650">Fijar meta</span></span>';
     return;
   }
   var pc=Math.max(0,Math.min(100,g/meta*100));
@@ -978,7 +1235,7 @@ function pintarMeta(){
     '<div class="meta-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+Math.floor(pc)+'"><i style="width:'+pc+'%"></i></div>'+
     (g>=meta?'<div class="meta-top" style="margin-top:6px;color:var(--gain-strong);font-weight:650">Meta cumplida</div>':'');
 }
-$('metaBox').onclick=function(){ pintarCfg(); abrir('dlgCfg'); setTimeout(function(){ $('cMeta').focus(); },50); };
+$('metaBox').onclick=$('metaHome').onclick=function(){ pintarCfg(); abrir('dlgCfg'); setTimeout(function(){ $('cMeta').focus(); },50); };
 
 /* ═════════ Diálogos ═════════ */
 function abrir(id){ var d=$(id); if(!d.open){ if(d.showModal) d.showModal(); else d.setAttribute('open',''); } }
@@ -1121,7 +1378,7 @@ function pintarHist(){
     var resumen=v.items.slice(0,3).map(function(i){ return q(num(i.qty))+' × '+esc(i.desc); }).join(' · ')+(v.items.length>3?' · +'+(v.items.length-3)+' más':'');
     var opts=Object.keys(ESTADOS).map(function(k){ return '<option value="'+k+'"'+(k===v.estado?' selected':'')+'>'+ESTADOS[k]+'</option>'; }).join('');
     return '<article class="vcard" data-v="'+esc(v.id)+'">'+
-      '<div class="vcard-top"><div><b>N° '+esc(v.num)+' · '+esc(v.provNombre)+'</b><small>'+fechaTxt(v.fecha)+(v.cli&&v.cli.nombre?' · '+esc(v.cli.nombre):'')+'</small></div>'+
+      '<div class="vcard-top"><div><b>'+etq(v.num)+' · '+esc(v.provNombre||'Sin proveedor')+'</b><small>'+fechaTxt(v.fecha)+(v.cli&&v.cli.nombre?' · '+esc(v.cli.nombre):'')+'</small></div>'+
       '<div class="vcard-gain"><b class="money">'+money(r.gan)+'</b><small>de '+money(r.pub)+'</small></div></div>'+
       '<div class="vcard-items">'+resumen+'</div>'+
       '<div class="vcard-act"><select class="inp" data-estado aria-label="Estado del pedido '+esc(v.num)+'">'+opts+'</select>'+
@@ -1143,11 +1400,11 @@ function cambiarEstado(id, estado){
 }
 function cargarVenta(v, repetir){
   if(cur.sucio && cur.items.length && cur.id!==v.id && !confirm('El pedido actual tiene cambios sin guardar. ¿Continuar?')) return false;
-  cur={id:repetir?null:v.id,num:repetir?siguienteNum():v.num,fecha:repetir?hoyISO():v.fecha,provId:v.provId,
+  cur={id:repetir?null:v.id,modo:v.modo||(v.estado==='cotizada'?'cliente':'proveedor'),num:repetir?siguienteNum():v.num,fecha:repetir?hoyISO():v.fecha,provId:v.provId,
     cli:{nombre:v.cli?v.cli.nombre:'',tel:v.cli?v.cli.tel:'',dir:v.cli?v.cli.dir:''},
     items:JSON.parse(JSON.stringify(v.items)),notas:v.notas||'',estado:repetir?'borrador':v.estado,sucio:!!repetir};
   if(!provPorId(cur.provId)) toast('El proveedor de este pedido ya no está registrado');
-  persistirBorrador(); ultimaGan=null; pintarForm(); window.scrollTo({top:0});
+  persistirBorrador(); ultimaGan=null; pintarForm(); mostrarForm(); window.scrollTo({top:0});
   return true;
 }
 $('hLista').addEventListener('change',function(e){
@@ -1160,10 +1417,10 @@ $('hLista').addEventListener('click',function(e){
   var id=b.closest('[data-v]').getAttribute('data-v'), v=ventas().filter(function(x){ return x.id===id; })[0]; if(!v) return;
   var a=b.getAttribute('data-a');
   if(a==='abrir'){ if(cargarVenta(v,false)) cerrar('dlgHist'); }
-  else if(a==='rep'){ if(cargarVenta(v,true)){ cerrar('dlgHist'); toast('Copia lista como pedido N° '+cur.num+'. Revisa y guarda.'); } }
+  else if(a==='rep'){ if(cargarVenta(v,true)){ cerrar('dlgHist'); toast('Copia lista como '+etq(cur.num)+'. Revisa y guarda.'); } }
   else if(a==='wa'){ cerrar('dlgHist'); abrirEnvio(v); }
   else if(a==='del'){
-    if(!confirm('¿Eliminar el pedido N° '+v.num+' de '+v.provNombre+'? No se puede deshacer.')) return;
+    if(!confirm('¿Eliminar '+etq(v.num)+(v.provNombre?' de '+v.provNombre:'')+'? No se puede deshacer.')) return;
     saveVentas(ventas().filter(function(x){ return x.id!==id; }));
     if(cur.id===id){ cur.id=null; cur.sucio=true; persistirBorrador(); pintarCabecera(); }
     pintarHist(); toast('Pedido eliminado');
@@ -1227,7 +1484,7 @@ function pintarRep(){
     return '<div class="pgrp"><div class="pgrp-h"><div class="row-main"><b>'+esc(g.nombre)+'</b><small>'+g.vs.length+' pedido'+(g.vs.length===1?'':'s')+(g.tarde?' · <span class="tarde">'+g.tarde+' atrasado'+(g.tarde===1?'':'s')+'</span>':'')+'</small></div>'+
       '<div class="row-side"><b class="money" style="color:var(--warn)">'+money(g.tot)+'</b></div>'+
       (telWA(g.tel)?'<button class="btn btn-volt btn-sm" data-recordar="'+esc(k)+'"><svg class="ic"><use href="#i-wa"/></svg>Recordar</button>':'')+'</div>'+
-      g.vs.map(function(x){ return '<div class="row" style="min-height:48px;padding:6px 0"><div class="row-main"><small style="color:var(--text)">N° '+esc(x.v.num)+' · '+fechaTxt(x.v.fecha)+' · <span class="'+(x.dias>lim?'tarde':'')+'">hace '+x.dias+' día'+(x.dias===1?'':'s')+'</span></small></div>'+
+      g.vs.map(function(x){ return '<div class="row" style="min-height:48px;padding:6px 0"><div class="row-main"><small style="color:var(--text)">'+etq(x.v.num)+' · '+fechaTxt(x.v.fecha)+' · <span class="'+(x.dias>lim?'tarde':'')+'">hace '+x.dias+' día'+(x.dias===1?'':'s')+'</span></small></div>'+
         '<b class="money" style="font-size:14px">'+money(x.gan)+'</b><button class="btn btn-ghost btn-sm" data-cobrar="'+esc(x.v.id)+'">Cobrada</button></div>'; }).join('')+'</div>';
   }).join(''):'<p class="hint">Nada pendiente de cobro en este periodo.</p>';
   pintarRep.grupos=grupos;
@@ -1240,7 +1497,7 @@ function pintarRep(){
 function diasDesde(iso){ var d=new Date(String(iso).length===10?iso+'T12:00:00':iso); if(isNaN(d)) return 0; return Math.max(0,Math.floor((Date.now()-d.getTime())/86400000)); }
 function mensajeRecordatorio(g){
   var nombre=(cfg().nombre||'').trim(), L=['Hola '+g.nombre+', te escribo por mi comisión pendiente:',''];
-  g.vs.forEach(function(x){ L.push('• Pedido N° '+x.v.num+' ('+fechaTxt(x.v.fecha)+'): '+money(x.gan)); });
+  g.vs.forEach(function(x){ L.push('• Pedido '+etq(x.v.num)+' ('+fechaTxt(x.v.fecha)+'): '+money(x.gan)); });
   L.push(''); L.push('*Total: '+money(g.tot)+'*'); L.push(''); L.push('¿Me confirmas cuándo me la puedes pasar? Gracias.');
   if(nombre){ L.push(''); L.push('— '+nombre); }
   return L.join('\n');
@@ -1269,7 +1526,7 @@ $('rCsv').onclick=function(){
   var f=[['orden','fecha','proveedor','cliente','producto','cantidad','fabrica_cu','venta_cu','ganancia','estado']];
   vs.sort(function(a,b){ return num(a.num)-num(b.num); }).forEach(function(v){
     v.items.forEach(function(i){ var qn=num(i.qty);
-      f.push([v.num,v.fecha,v.provNombre,v.cli?v.cli.nombre:'',i.desc,qn,num(i.fab).toFixed(2),num(i.pub).toFixed(2),(qn*(num(i.pub)-num(i.fab))).toFixed(2),ESTADOS[v.estado]]); });
+      f.push([etq(v.num),v.fecha,v.provNombre,v.cli?v.cli.nombre:'',i.desc,qn,num(i.fab).toFixed(2),num(i.pub).toFixed(2),(qn*(num(i.pub)-num(i.fab))).toFixed(2),ESTADOS[v.estado]]); });
   });
   var e=function(x){ x=x==null?'':String(x); return /[";\n]/.test(x)?'"'+x.replace(/"/g,'""')+'"':x; };
   descargar('flash_comisiones_'+hoyISO()+'.csv','\uFEFF'+f.map(function(r){ return r.map(e).join(';'); }).join('\r\n'),'text/csv;charset=utf-8');
@@ -1288,6 +1545,7 @@ function pintarCfgProvs(){
   }).join(''):'<p class="hint">Aún no tienes proveedores.</p>';
 }
 function pintarCfg(){
+  pintarEmp();
   var c=cfg(); $('cNombre').value=c.nombre||''; $('cMeta').value=num(c.meta)>0?decP(c.meta):''; $('cDias').value=c.diasCobro||'';
   $('cUltimo').textContent=c.ultimoRespaldo?'Último respaldo: '+new Date(c.ultimoRespaldo).toLocaleString('es-EC'):'Todavía no has descargado un respaldo.';
   pintarCfgProvs();
@@ -1639,7 +1897,8 @@ var SEMILLA=[
 cur=load(K.draft,null);
 if(!cur||!Array.isArray(cur.items)) cur=pedidoVacio();
 if(!cur.cli) cur.cli={nombre:'',tel:'',dir:''};
-pintarForm(); pintarMeta();
+if(!cur.modo) cur.modo=cur.estado==='cotizada'?'cliente':'proveedor';
+pintarForm(); pintarMeta(); irInicio();
 if(!provs().length) setTimeout(function(){ toast('Empieza agregando a tus proveedores','Agregar',function(){ abrirProvForm(null,true); }); },600);
 
 /* Service worker con aviso de actualización */
