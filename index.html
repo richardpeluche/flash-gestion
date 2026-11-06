@@ -724,7 +724,8 @@ a.btn{text-decoration:none}
         <button class="icon-btn" id="pvGps" type="button" aria-label="Usar mi ubicación actual"><svg class="ic"><use href="#i-gps"/></svg></button>
       </div>
       <div class="ubic-ok" id="pvUbicOk"></div>
-      <p class="hint">Para el GPS tienes que estar en el local. Un enlace largo de Maps (con coordenadas) también deja pedir Uber directo.</p>
+      <button class="btn btn-ghost" id="pvBuscarMaps" type="button" style="width:100%"><svg class="ic"><use href="#i-pin"/></svg>Buscar en Google Maps</button>
+      <p class="hint">Busca el local en Maps, toca <b>Compartir → Copiar enlace</b> y pégalo arriba. Para el GPS tienes que estar en el local. Un enlace largo de Maps (con coordenadas) también deja pedir Uber directo.</p>
       <h3 style="font-size:15px;margin-top:6px">Conectar a la app</h3>
       <div id="pvConectar"></div>
     </div>
@@ -812,7 +813,7 @@ a.btn{text-decoration:none}
         <h3>Zona de cuidado</h3>
         <button class="btn btn-danger" id="cBorrarTodo"><svg class="ic"><use href="#i-trash"/></svg>Borrar todos los datos</button>
       </div>
-      <p class="hint" style="text-align:center">flash-gestion · v1.9</p>
+      <p class="hint" style="text-align:center">flash-gestion · v1.10</p>
     </div>
   </div>
 </dialog>
@@ -1198,6 +1199,13 @@ function pedirGps(fin){
 }
 $('cliGps').onclick=function(){ pedirGps(function(u){ cur.cli.mapa=u.link; cur.cli.lat=u.lat; cur.cli.lng=u.lng; $('fCliMapa').value=u.link; marcarSucio(); pintarUbicOk('cliUbicOk',cur.cli); pintarViajes(); }); };
 $('fCliMapa').addEventListener('input',function(){ var c=coordsDe(this.value); cur.cli.lat=c?c.lat:''; cur.cli.lng=c?c.lng:''; pintarUbicOk('cliUbicOk',cur.cli); pintarViajes(); });
+$('pvBuscarMaps').onclick=function(){
+  var q=[$('pvNombre').value.trim(),'Quito'].filter(Boolean).join(' ');
+  window.open('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q),'_blank');
+  var vuelta=function(){ if(document.visibilityState!=='visible') return; document.removeEventListener('visibilitychange',vuelta);
+    if(!$('pvMapa').value.trim()){ $('pvMapa').focus(); toast('Pega aquí el enlace que copiaste de Maps'); } };
+  setTimeout(function(){ document.addEventListener('visibilitychange',vuelta); },500);
+};
 $('pvGps').onclick=function(){ pedirGps(function(u){ pvCoords={lat:u.lat,lng:u.lng}; $('pvMapa').value=u.link; pintarUbicOk('pvUbicOk',pvCoords); }); };
 $('pvMapa').addEventListener('input',function(){ var c=coordsDe(this.value); pvCoords=c||{lat:'',lng:''}; pintarUbicOk('pvUbicOk',pvCoords); });
 function destino(tipo){
