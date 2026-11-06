@@ -337,6 +337,8 @@ dialog::backdrop{background:oklch(0.15 0.02 272 / .55)}
 
 .prev{background:oklch(0.97 0.02 152);border:1px solid oklch(0.88 0.05 152);border-radius:var(--r);padding:12px 14px;
   font-size:14px;white-space:pre-wrap;line-height:1.45;max-height:42dvh;overflow:auto;font-family:var(--font)}
+a.btn{text-decoration:none}
+.pasos{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:10px;font-size:15px;line-height:1.45}
 .check{display:flex;align-items:flex-start;gap:10px;min-height:44px;padding:8px 0;font-size:14.5px;cursor:pointer}
 .check input{width:22px;height:22px;flex:none;accent-color:var(--ink);margin-top:1px}
 .note{border-radius:var(--r-sm);padding:10px 12px;font-size:13.5px;background:var(--warn-soft);color:oklch(0.40 0.09 70)}
@@ -804,7 +806,7 @@ dialog::backdrop{background:oklch(0.15 0.02 272 / .55)}
         <h3>Zona de cuidado</h3>
         <button class="btn btn-danger" id="cBorrarTodo"><svg class="ic"><use href="#i-trash"/></svg>Borrar todos los datos</button>
       </div>
-      <p class="hint" style="text-align:center">flash-gestion · v1.6</p>
+      <p class="hint" style="text-align:center">flash-gestion · v1.7</p>
     </div>
   </div>
 </dialog>
@@ -825,6 +827,27 @@ dialog::backdrop{background:oklch(0.15 0.02 272 / .55)}
 </dialog>
 
 <!-- Invitación recibida -->
+<dialog id="dlgApk" aria-labelledby="dlgApkT">
+  <div class="sheet">
+    <div class="sheet-h"><h2 id="dlgApkT">Instala Flash en tu teléfono</h2><button class="x" data-close aria-label="Cerrar"><svg class="ic"><use href="#i-x"/></svg></button></div>
+    <div class="sheet-b">
+      <p>Ya estás conectado. Instala la app para recibir los pedidos como cualquier otra app del teléfono.</p>
+      <ol class="pasos">
+        <li><b>Toca Descargar Flash.</b> Se baja un archivo <b>Flash.apk</b>.</li>
+        <li><b>Ábrelo</b> desde el aviso de descarga o desde la carpeta Descargas.</li>
+        <li>La primera vez Android dice que <b>no puede instalar apps desconocidas</b>: toca <b>Configuración</b>, activa <b>Permitir de esta fuente</b> y vuelve atrás.</li>
+        <li>Toca <b>Instalar</b>. Si aparece Play Protect, toca <b>Más detalles → Instalar de todas formas</b>.</li>
+        <li><b>Abre Flash.</b> Entras ya conectado, no tienes que repetir nada.</li>
+      </ol>
+      <p class="hint">Es seguro: la app es la misma página que acabas de abrir, empaquetada para Android. El permiso de "fuentes desconocidas" puedes volver a desactivarlo después.</p>
+    </div>
+    <div class="sheet-f">
+      <a class="btn btn-volt" id="apkDescargar" href="#" download="Flash.apk"><svg class="ic"><use href="#i-dl"/></svg>Descargar Flash</a>
+      <button class="btn btn-ghost" id="apkLuego">Ahora no</button>
+    </div>
+  </div>
+</dialog>
+
 <dialog id="dlgInv" aria-labelledby="dlgInvT">
   <div class="sheet">
     <div class="sheet-h"><h2 id="dlgInvT">Te invitaron a Flash</h2><button class="x" data-close aria-label="Cerrar"><svg class="ic"><use href="#i-x"/></svg></button></div>
@@ -2414,6 +2437,7 @@ window.GastoRic=GastoRic;
 
 /* ═════════ Nube: sincronización y pedidos compartidos ═════════ */
 var FlashNube=(function(){
+  var APK_URL='https://github.com/richardpeluche/flash-gestion/releases/latest/download/Flash.apk'; // enlace de descarga de la APK (GitHub Release); vacío = invitación por Chrome
   var URL_='https://shcbozuzwzkzphkmjfwo.supabase.co', KEY='sb_publishable_6SPPZniYeZXK3CxV81Y92g_A9tn3y7b';
   var KN='flash_nube', KH='flash_nube_hash';
   function st(){ return load(KN,null); }
@@ -2580,17 +2604,34 @@ var FlashNube=(function(){
     box.innerHTML='<p class="hint">'+(e?'Invitación enviada, todavía no la acepta. Puedes reenviarla.':'Le llega un enlace por WhatsApp; al abrirlo queda conectado.')+'</p>'+
       '<button class="btn btn-ghost" id="pvInvitar" data-prov="'+esc(provId)+'" style="width:100%"><svg class="ic"><use href="#i-wa"/></svg>'+(e?'Reenviar invitación':'Invitar por WhatsApp')+'</button>';
   }
+  function esAndroid(){ return /Android/i.test(navigator.userAgent); }
+  function enApp(){ try{ return matchMedia('(display-mode: standalone)').matches || String(document.referrer).indexOf('android-app://')===0; }catch(e){ return false; } }
+  function pasosApk(){
+    if(!APK_URL || !esAndroid() || enApp()) return false;
+    $('apkDescargar').href=APK_URL; abrir('dlgApk'); return true;
+  }
+  $('apkDescargar').onclick=function(){ setTimeout(function(){ toast('Cuando termine la descarga, ábrela y toca Instalar'); },400); };
+  $('apkLuego').onclick=function(){ cerrar('dlgApk'); abrirRecibidos(); };
   function invitar(provId){
     var p=provPorId(provId), s=st(); if(!p||!s) return;
     rpc('flash_invitar',{p_clave:s.clave,p_prov_id:provId,p_nombre:p.nombre}).then(function(r){
       var en=s.enlaces||{}; en[provId]={prov_id:provId,codigo:r.codigo,conectado:r.conectado}; setSt({enlaces:en});
       var link=location.origin+location.pathname.replace(/index\.html$/,'')+'?invita='+r.codigo;
-      var msg='Hola '+p.nombre+', te invito a Flash para recibir mis pedidos directo en tu teléfono, con cantidades, precios e imágenes.\n\n'+
+      var msg=APK_URL?('Hola '+p.nombre+', te invito a Flash para recibir mis pedidos directo en tu teléfono, con cantidades, precios e imágenes.\n\n'+
+        '*Cómo conectarte (2 minutos):*\n'+
+        '1. Abre este enlace en *Chrome*:\n'+link+'\n'+
+        '2. Escribe tu nombre y tu WhatsApp, y toca *Aceptar invitación*.\n'+
+        '3. Toca *Descargar Flash* y abre el archivo descargado.\n'+
+        '4. *Importante:* la primera vez Android dice que no puede instalar apps desconocidas. Toca *Configuración*, activa *Permitir de esta fuente* y vuelve atrás.\n'+
+        '5. Toca *Instalar*. Si sale Play Protect: *Más detalles → Instalar de todas formas*.\n'+
+        '6. Abre Flash: ya entras conectado.\n\n'+
+        'Mis pedidos te aparecen en *Pedidos recibidos*. Ahí marcas cuando está en producción, entregado y cuando pagas.\n\n— '+(emp().rep||s.nombre||'')):
+        ('Hola '+p.nombre+', te invito a Flash para recibir mis pedidos directo en tu teléfono, con cantidades, precios e imágenes.\n\n'+
         '*Cómo conectarte:*\n'+
         '1. Abre este enlace en *Chrome* (si se abre en otro navegador, toca los 3 puntos → Abrir en Chrome):\n'+link+'\n'+
         '2. Escribe tu nombre y tu WhatsApp, y toca *Aceptar invitación*.\n'+
         '3. Para tenerla como app: en Chrome toca ⋮ → *Instalar app*. Si no te deja, usa *Crear acceso directo*; funciona igual.\n\n'+
-        'Mis pedidos te aparecen en *Pedidos recibidos*. Ahí marcas cuando está en producción, entregado y cuando pagas la comisión.\n\n— '+(emp().rep||s.nombre||'');
+        'Mis pedidos te aparecen en *Pedidos recibidos*. Ahí marcas cuando está en producción, entregado y cuando pagas la comisión.\n\n— '+(emp().rep||s.nombre||''));
       var t=telWA(p.tel); window.open(t?('https://wa.me/'+t+'?text='+encodeURIComponent(msg)):('https://wa.me/?text='+encodeURIComponent(msg)),'_blank');
       pintarConectar(provId);
     }).catch(function(e){ toast('No se pudo crear la invitación: '+e.message); });
@@ -2614,7 +2655,7 @@ var FlashNube=(function(){
     b.disabled=true; $('invSt').textContent='Conectando…';
     paso.then(function(clave){ return rpc('flash_aceptar',{p_clave:clave,p_codigo:codigoInv}); }).then(function(r){
       setSt({esProveedor:true}); try{ sessionStorage.removeItem('flash_invita'); }catch(e){} cerrar('dlgInv'); b.disabled=false; pintarHomeRec();
-      toast('Listo: ya recibes los pedidos de '+(r.vendedor||'tu vendedor')); abrirRecibidos(); sync();
+      toast('Listo: ya recibes los pedidos de '+(r.vendedor||'tu vendedor')); if(!pasosApk()) abrirRecibidos(); sync();
     }).catch(function(e){ b.disabled=false;
       $('invSt').textContent=/codigo_invalido/.test(e.message)?'Esa invitación no existe o ya no es válida.':/codigo_usado/.test(e.message)?'Esa invitación ya la usó otra persona. Pide una nueva.':/mismo_usuario/.test(e.message)?'Esta invitación es tuya: ábrela en el teléfono de tu proveedor.':'No se pudo conectar: '+e.message; });
   };
