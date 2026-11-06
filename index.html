@@ -226,6 +226,7 @@ body.modo-cli .items .empty{display:none}
 body.modo-cli .items:empty{display:none}
 body:not(.modo-cli) .solo-cli{display:none!important}
 .add-top{margin-top:0}
+body.modo-com #addRow{margin-bottom:12px}
 .add-top .btn{flex:1 1 0;min-width:0;padding:0 10px;white-space:nowrap;gap:6px}
 @media (max-width:340px){.dock .solo-ancho{display:none}}
 @media (max-width:420px){.add-top .solo-ancho{display:none}.add-top #btnVoz{width:46px;padding:0}}
@@ -456,7 +457,8 @@ a.btn{text-decoration:none}
     <div class="head-meta"><span class="chip st-borrador" id="hEstado">Sin enviar</span></div>
   </section>
 
-  <div class="add-row add-top">
+  <div id="addSlotTop"></div>
+  <div class="add-row add-top" id="addRow">
     <button class="btn btn-ink" id="btnAddManual"><svg class="ic"><use href="#i-plus"/></svg>Ítem manual</button>
     <button class="btn btn-ghost" id="btnAddCat"><svg class="ic"><use href="#i-box"/></svg>Mis productos</button>
     <button class="btn btn-ghost" id="btnVoz" aria-label="Dictar o pegar"><svg class="ic"><use href="#i-mic"/></svg><span class="solo-ancho">Dictar</span></button>
@@ -810,7 +812,7 @@ a.btn{text-decoration:none}
         <h3>Zona de cuidado</h3>
         <button class="btn btn-danger" id="cBorrarTodo"><svg class="ic"><use href="#i-trash"/></svg>Borrar todos los datos</button>
       </div>
-      <p class="hint" style="text-align:center">flash-gestion · v1.8</p>
+      <p class="hint" style="text-align:center">flash-gestion · v1.9</p>
     </div>
   </div>
 </dialog>
@@ -991,6 +993,7 @@ function pintarProvHint(){
 
 function pintarModo(){
   var cli=cur.modo==='cliente', com=cur.modo==='compra';
+  var ar=$('addRow'); if(com){ if(ar.nextElementSibling!==$('items')) $('items').before(ar); } else if(ar.previousElementSibling!==$('addSlotTop')) $('addSlotTop').after(ar);
   document.body.classList.toggle('modo-cli',cli); document.body.classList.toggle('modo-com',com);
   $('lblFab').textContent=com?'Total a pagar':'Total a precio de fábrica';
   $('dGainLbl').textContent=com?'Total a pagar':'Ganancia';
