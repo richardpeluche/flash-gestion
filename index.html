@@ -405,13 +405,21 @@ dialog::backdrop{background:oklch(0.15 0.02 272 / .55)}
   </section>
 
   <details class="more" id="cliBox">
-    <summary><svg class="ic" style="margin:0;transform:none;color:var(--ink-3)"><use href="#i-user"/></svg> Cliente y entrega <small id="cliResumen">opcional</small><svg class="ic"><use href="#i-down"/></svg></summary>
+    <summary><svg class="ic" style="margin:0;transform:none;color:var(--ink-3)"><use href="#i-user"/></svg> Datos del cliente <small id="cliResumen">opcional</small><svg class="ic"><use href="#i-down"/></svg></summary>
     <div class="more-body">
       <button class="btn btn-ghost" id="cliContacto" data-contactos hidden><svg class="ic"><use href="#i-book"/></svg>Elegir cliente de mis contactos</button>
-      <div class="field"><label for="fCli">Cliente</label><input id="fCli" class="inp" autocomplete="off" placeholder="Nombre o empresa"></div>
+      <div class="field"><label for="fCliEmp">Empresa</label><input id="fCliEmp" class="inp" autocomplete="off" placeholder="Nombre de la empresa o institución"></div>
       <div class="grid2">
+        <div class="field"><label for="fCli">Cliente</label><input id="fCli" class="inp" autocomplete="off" placeholder="Nombre de la persona"></div>
         <div class="field"><label for="fCliTel">Teléfono</label><input id="fCliTel" class="inp" type="tel" inputmode="tel" placeholder="09…"></div>
-        <div class="field"><label for="fCliDir">Entrega</label><input id="fCliDir" class="inp" placeholder="Dirección o retiro"></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label for="fCliDir">Dirección</label><input id="fCliDir" class="inp" placeholder="Dirección o entrega"></div>
+        <div class="field"><label for="fCliRuc">CI / RUC</label><input id="fCliRuc" class="inp" inputmode="numeric" placeholder="1712345678"></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label for="fCliMail">Email</label><input id="fCliMail" class="inp" type="email" inputmode="email" placeholder="correo@ejemplo.com"></div>
+        <div class="field"><label for="fCliAt">Atendido por</label><input id="fCliAt" class="inp" placeholder="Tu nombre"></div>
       </div>
     </div>
   </details>
@@ -752,9 +760,13 @@ function siguienteNum(){
 
 /* ═════════ Pedido en curso ═════════ */
 var cur=null;
+var CLI_CAMPOS=['nombre','tel','dir','empresa','ruc','mail','atendido'];
+function cliVacio(){ var o={}; CLI_CAMPOS.forEach(function(k){ o[k]=''; }); o.atendido=emp().rep||''; return o; }
+function cliDe(c){ var o={}; c=c||{}; CLI_CAMPOS.forEach(function(k){ o[k]=String(c[k]||'').trim(); }); return o; }
+var CLI_IDS={nombre:'fCli',tel:'fCliTel',dir:'fCliDir',empresa:'fCliEmp',ruc:'fCliRuc',mail:'fCliMail',atendido:'fCliAt'};
 function pedidoVacio(modo){
   return {id:null,modo:modo||'proveedor',num:siguienteNum(),fecha:hoyISO(),provId:cfg().ultimoProv||'',
-          cli:{nombre:'',tel:'',dir:''},items:[],notas:'',estado:'borrador',sucio:false};
+          cli:cliVacio(),items:[],notas:'',estado:'borrador',sucio:false};
 }
 function persistirBorrador(){ save(K.draft,cur); }
 function marcarSucio(){ cur.sucio=true; persistirBorrador(); }
@@ -791,15 +803,15 @@ function pintarCabecera(){
   $('fEstado').value=cur.estado;
 }
 function pintarCliResumen(){
-  var c=cur.cli, t=[c.nombre,c.dir].filter(Boolean).join(' · ');
+  var c=cur.cli, t=[c.empresa,c.nombre].filter(Boolean).join(' · ');
   $('cliResumen').textContent=t||'opcional';
 }
 function pintarForm(){
   pintarCabecera(); pintarProvSelect();
   $('fFecha').value=cur.fecha;
-  $('fCli').value=cur.cli.nombre; $('fCliTel').value=cur.cli.tel; $('fCliDir').value=cur.cli.dir;
+  cur.cli=Object.assign(cliVacio(),{atendido:''},cur.cli||{}); for(var k in CLI_IDS) $(CLI_IDS[k]).value=cur.cli[k]||'';
   $('fNotas').value=cur.notas;
-  $('cliBox').open=!!(cur.cli.nombre||cur.cli.tel||cur.cli.dir);
+  $('cliBox').open=!!(cur.cli.nombre||cur.cli.tel||cur.cli.dir||cur.cli.empresa);
   pintarCliResumen(); pintarItems();
 }
 
@@ -883,8 +895,8 @@ $('fProv').addEventListener('change',function(){
 $('btnProvNuevo').onclick=function(){ abrirProvForm(null,true); };
 $('fFecha').addEventListener('change',function(){ cur.fecha=this.value||hoyISO(); marcarSucio(); });
 $('fEstado').addEventListener('change',function(){ cur.estado=this.value; marcarSucio(); pintarCabecera(); if(cur.id) guardar(true); });
-[['fCli','nombre'],['fCliTel','tel'],['fCliDir','dir']].forEach(function(p){
-  $(p[0]).addEventListener('input',function(){ cur.cli[p[1]]=this.value; marcarSucio(); pintarCliResumen(); });
+Object.keys(CLI_IDS).forEach(function(k){
+  $(CLI_IDS[k]).addEventListener('input',function(){ cur.cli[k]=this.value; marcarSucio(); pintarCliResumen(); });
 });
 $('fNotas').addEventListener('input',function(){ cur.notas=this.value; marcarSucio(); });
 $('btnAddManual').onclick=function(){ agregarItem({desc:'',qty:1},true); };
@@ -912,7 +924,7 @@ function guardar(silencioso, sinProveedor){
   limpiarItems();
   var p=provPorId(cur.provId)||{nombre:'',tel:''}, a=ventas(), ahora=new Date().toISOString();
   var reg={id:cur.id||uid(),num:cur.num,fecha:cur.fecha,provId:cur.provId,provNombre:p.nombre,provTel:p.tel||'',
-    cli:{nombre:cur.cli.nombre.trim(),tel:cur.cli.tel.trim(),dir:cur.cli.dir.trim()},
+    cli:cliDe(cur.cli),
     items:cur.items,notas:cur.notas.trim(),estado:cur.estado,modo:cur.modo||'proveedor',actualizado:ahora};
   var i=-1; a.forEach(function(v,k){ if(v.id===reg.id) i=k; });
   if(i>-1){ reg.creado=a[i].creado; reg.enviadoAt=a[i].enviadoAt||''; reg.cobradoAt=a[i].cobradoAt||''; reg.cotizadoAt=a[i].cotizadoAt||''; a[i]=reg; }
@@ -975,9 +987,10 @@ function mensaje(v, conGanancia){
     L.push('*Total venta al cliente:* '+money(r.pub));
     L.push('*Mi comisión:* '+money(r.gan));
   }
-  if(v.cli && (v.cli.nombre||v.cli.tel||v.cli.dir)){
+  if(v.cli && (v.cli.nombre||v.cli.tel||v.cli.dir||v.cli.empresa)){
     L.push('');
     L.push('*Cliente / entrega*');
+    if(v.cli.empresa) L.push(v.cli.empresa);
     if(v.cli.nombre) L.push(v.cli.nombre);
     if(v.cli.tel) L.push('Tel: '+v.cli.tel);
     if(v.cli.dir) L.push(v.cli.dir);
@@ -1073,7 +1086,7 @@ function cargarJsPDF(){
 function imgInfo(src){ return new Promise(function(res){ if(!src) return res(null); var im=new Image(); im.onload=function(){ res({src:src,w:im.width,h:im.height}); }; im.onerror=function(){ res(null); }; im.src=src; }); }
 function hexRgb(h){ h=String(h||'#0F8198').replace('#',''); if(h.length===3) h=h.split('').map(function(c){ return c+c; }).join(''); var n=parseInt(h,16); return [(n>>16)&255,(n>>8)&255,n&255]; }
 function aclarar(c,k){ return c.map(function(v){ return Math.round(v+(255-v)*k); }); }
-function nombreArchivo(v){ return 'Cotizacion_'+etq(v.num).replace(' ','_')+(v.cli&&v.cli.nombre?'_'+v.cli.nombre.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9]+/g,'_').slice(0,30):'')+'.pdf'; }
+function nombreArchivo(v){ var cn=v.cli?(v.cli.empresa||v.cli.nombre):''; return 'Cotizacion_'+etq(v.num).replace(' ','_')+(cn?'_'+cn.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9]+/g,'_').slice(0,30):'')+'.pdf'; }
 function generarPDF(v){
   var e=emp();
   return Promise.all([cargarJsPDF(),imgInfo(logo())]).then(function(r){
@@ -1091,12 +1104,15 @@ function generarPDF(v){
     doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor.apply(doc,gris); doc.text('Fecha: '+fechaTxt(v.fecha),W-M,y+19.5,{align:'right'});
     y=Math.max(y+(li?28:22),yy+2);
     // cliente
-    var c=v.cli||{}, filas=[['Cliente',c.nombre],['Teléfono',c.tel],['Entrega',c.dir]].filter(function(f){ return f[1]; });
+    var c=v.cli||{}, filas=[['Empresa',c.empresa],['Cliente',c.nombre],['Teléfono',c.tel],['CI / RUC',c.ruc],['Dirección',c.dir],['Email',c.mail],['Atendido por',c.atendido]].filter(function(f){ return f[1]; });
     if(filas.length){
-      var hb=6+filas.length*5.2; doc.setFillColor.apply(doc,suave); doc.roundedRect(M,y,W-2*M,hb,2,2,'F');
-      doc.setFontSize(9.5); var cy=y+6.5;
-      filas.forEach(function(f){ doc.setFont('helvetica','bold'); doc.setTextColor.apply(doc,col); doc.text(f[0]+':',M+4,cy);
-        doc.setFont('helvetica','normal'); doc.setTextColor.apply(doc,ink); doc.text(String(f[1]).slice(0,90),M+26,cy); cy+=5.2; });
+      var nfil=Math.ceil(filas.length/2), hb=6+nfil*5.4, colW=(W-2*M)/2;
+      doc.setFillColor.apply(doc,suave); doc.roundedRect(M,y,W-2*M,hb,2,2,'F');
+      doc.setFontSize(9); 
+      filas.forEach(function(f,i){ var cx0=M+4+(i%2)*colW, cy=y+6.3+Math.floor(i/2)*5.4;
+        doc.setFont('helvetica','bold'); doc.setTextColor.apply(doc,col); doc.text(f[0]+':',cx0,cy);
+        doc.setFont('helvetica','normal'); doc.setTextColor.apply(doc,ink);
+        var val=doc.splitTextToSize(String(f[1]),colW-30)[0]; doc.text(val,cx0+24,cy); });
       y+=hb+6;
     }
     // tabla
@@ -1171,7 +1187,7 @@ function cotizarCliente(){
   var reg=guardar(true,true); if(!reg) return;
   cliVenta=reg; cliPdf=null; if(cliUrl){ URL.revokeObjectURL(cliUrl); cliUrl=''; }
   var t=telWA(reg.cli.tel), e=emp();
-  $('cliDestino').innerHTML=t?('Para <b>'+esc(reg.cli.nombre||'el cliente')+'</b> · +'+esc(t)):'Sin teléfono del cliente: al compartir eliges el chat.';
+  $('cliDestino').innerHTML=t?('Para <b>'+esc(reg.cli.nombre||reg.cli.empresa||'el cliente')+'</b> · +'+esc(t)):'Sin teléfono del cliente: al compartir eliges el chat.';
   $('cliEmpHint').innerHTML=(e.nombre||logo())?'':'<span class="hint warn">Aún no cargas los datos de tu empresa. Ve a Ajustes → Tu empresa, o usa «Usar mis datos de RICCHARY».</span>';
   $('cliPrev').textContent=mensajePDF(reg);
   $('cliVer').disabled=true; $('cliAbrir').disabled=true; $('cliPdfSt').querySelector('span').textContent='Preparando PDF…';
@@ -1367,7 +1383,7 @@ function pintarHist(){
     if(hFiltro!=='todos' && v.estado!==hFiltro) return false;
     if(pv && v.provId!==pv) return false;
     if(!t) return true;
-    var s=[v.num,v.provNombre,v.cli&&v.cli.nombre,v.notas].concat(v.items.map(function(i){ return i.desc; })).join(' ').toLowerCase();
+    var s=[etq(v.num),v.provNombre,v.cli&&v.cli.nombre,v.cli&&v.cli.empresa,v.notas].concat(v.items.map(function(i){ return i.desc; })).join(' ').toLowerCase();
     return s.indexOf(t)>-1;
   });
   var box=$('hLista');
@@ -1378,7 +1394,7 @@ function pintarHist(){
     var resumen=v.items.slice(0,3).map(function(i){ return q(num(i.qty))+' × '+esc(i.desc); }).join(' · ')+(v.items.length>3?' · +'+(v.items.length-3)+' más':'');
     var opts=Object.keys(ESTADOS).map(function(k){ return '<option value="'+k+'"'+(k===v.estado?' selected':'')+'>'+ESTADOS[k]+'</option>'; }).join('');
     return '<article class="vcard" data-v="'+esc(v.id)+'">'+
-      '<div class="vcard-top"><div><b>'+etq(v.num)+' · '+esc(v.provNombre||'Sin proveedor')+'</b><small>'+fechaTxt(v.fecha)+(v.cli&&v.cli.nombre?' · '+esc(v.cli.nombre):'')+'</small></div>'+
+      '<div class="vcard-top"><div><b>'+etq(v.num)+' · '+esc(v.provNombre||'Sin proveedor')+'</b><small>'+fechaTxt(v.fecha)+(v.cli&&(v.cli.empresa||v.cli.nombre)?' · '+esc(v.cli.empresa||v.cli.nombre):'')+'</small></div>'+
       '<div class="vcard-gain"><b class="money">'+money(r.gan)+'</b><small>de '+money(r.pub)+'</small></div></div>'+
       '<div class="vcard-items">'+resumen+'</div>'+
       '<div class="vcard-act"><select class="inp" data-estado aria-label="Estado del pedido '+esc(v.num)+'">'+opts+'</select>'+
@@ -1401,7 +1417,7 @@ function cambiarEstado(id, estado){
 function cargarVenta(v, repetir){
   if(cur.sucio && cur.items.length && cur.id!==v.id && !confirm('El pedido actual tiene cambios sin guardar. ¿Continuar?')) return false;
   cur={id:repetir?null:v.id,modo:v.modo||(v.estado==='cotizada'?'cliente':'proveedor'),num:repetir?siguienteNum():v.num,fecha:repetir?hoyISO():v.fecha,provId:v.provId,
-    cli:{nombre:v.cli?v.cli.nombre:'',tel:v.cli?v.cli.tel:'',dir:v.cli?v.cli.dir:''},
+    cli:cliDe(v.cli),
     items:JSON.parse(JSON.stringify(v.items)),notas:v.notas||'',estado:repetir?'borrador':v.estado,sucio:!!repetir};
   if(!provPorId(cur.provId)) toast('El proveedor de este pedido ya no está registrado');
   persistirBorrador(); ultimaGan=null; pintarForm(); mostrarForm(); window.scrollTo({top:0});
@@ -1526,7 +1542,7 @@ $('rCsv').onclick=function(){
   var f=[['orden','fecha','proveedor','cliente','producto','cantidad','fabrica_cu','venta_cu','ganancia','estado']];
   vs.sort(function(a,b){ return num(a.num)-num(b.num); }).forEach(function(v){
     v.items.forEach(function(i){ var qn=num(i.qty);
-      f.push([etq(v.num),v.fecha,v.provNombre,v.cli?v.cli.nombre:'',i.desc,qn,num(i.fab).toFixed(2),num(i.pub).toFixed(2),(qn*(num(i.pub)-num(i.fab))).toFixed(2),ESTADOS[v.estado]]); });
+      f.push([etq(v.num),v.fecha,v.provNombre,v.cli?[v.cli.empresa,v.cli.nombre].filter(Boolean).join(' / '):'',i.desc,qn,num(i.fab).toFixed(2),num(i.pub).toFixed(2),(qn*(num(i.pub)-num(i.fab))).toFixed(2),ESTADOS[v.estado]]); });
   });
   var e=function(x){ x=x==null?'':String(x); return /[";\n]/.test(x)?'"'+x.replace(/"/g,'""')+'"':x; };
   descargar('flash_comisiones_'+hoyISO()+'.csv','\uFEFF'+f.map(function(r){ return r.map(e).join(';'); }).join('\r\n'),'text/csv;charset=utf-8');
