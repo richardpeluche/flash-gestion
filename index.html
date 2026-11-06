@@ -212,6 +212,10 @@ body:not(.modo-cli) .solo-cli{display:none!important}
 .thumb img{width:100%;height:100%;object-fit:cover;display:block}
 .thumb button{position:absolute;top:4px;right:4px;width:32px;height:32px;border-radius:50%;background:oklch(0.2 0.03 272 / .75);color:#fff;display:grid;place-items:center}
 .thumb button .ic{width:16px;height:16px}
+.viaje{display:flex;gap:6px;flex-wrap:wrap}
+.viaje .btn{flex:1 1 0;min-width:0;min-height:42px;padding:0 10px;font-size:14px;white-space:nowrap}
+.ubic-row{display:grid;grid-template-columns:1fr 46px;gap:8px;align-items:end}
+.ubic-ok{font-size:12.5px;color:var(--gain-strong);font-weight:650}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px;display:flex;flex-direction:column;gap:12px}
 .card-h{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .card-h h2{font-size:13px;font-weight:750;letter-spacing:.06em;color:#0F8198;text-transform:uppercase}
@@ -371,6 +375,10 @@ dialog::backdrop{background:oklch(0.15 0.02 272 / .55)}
   <symbol id="i-truck" viewBox="0 0 24 24"><path d="M3 6h11v10H3z"/><path d="M14 9h4l3 3v4h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
   <symbol id="i-pdf" viewBox="0 0 24 24"><path d="M14 3v5h5"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2Z"/><path d="M8.5 13.5h1.5a1.2 1.2 0 0 1 0 2.4H8.5V13.5Zm0 2.4V18"/><path d="M13 13.5v4.5h1a2 2 0 0 0 0-4.5h-1Z"/></symbol>
   <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+  <symbol id="i-car" viewBox="0 0 24 24"><path d="M5 16V11l2-5h10l2 5v5"/><path d="M3 16h18v2H3z"/><circle cx="7.5" cy="13.5" r="1"/><circle cx="16.5" cy="13.5" r="1"/></symbol>
+  <symbol id="i-bank" viewBox="0 0 24 24"><path d="M3 10 12 4l9 6"/><path d="M5 10v8"/><path d="M10 10v8"/><path d="M14 10v8"/><path d="M19 10v8"/><path d="M3 20h18"/></symbol>
+  <symbol id="i-gps" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v3"/><path d="M12 19v3"/><path d="M2 12h3"/><path d="M19 12h3"/></symbol>
   <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
 </svg>
 
@@ -452,6 +460,12 @@ dialog::backdrop{background:oklch(0.15 0.02 272 / .55)}
       <div class="field"><label for="fCliMail">Email</label><input id="fCliMail" class="inp" type="email" inputmode="email" placeholder="correo@ejemplo.com"></div>
       <div class="field"><label for="fCliAt">Atendido por</label><input id="fCliAt" class="inp" placeholder="Tu nombre"></div>
     </div>
+    <div class="ubic-row">
+      <div class="field"><label for="fCliMapa">Ubicación (enlace de Google Maps)</label><input id="fCliMapa" class="inp" inputmode="url" placeholder="Pega el enlace o usa el GPS"></div>
+      <button class="icon-btn" id="cliGps" type="button" aria-label="Usar mi ubicación actual"><svg class="ic"><use href="#i-gps"/></svg></button>
+    </div>
+    <div class="ubic-ok" id="cliUbicOk"></div>
+    <div class="viaje" data-viaje="cli"></div>
   </section>
 
   <section aria-labelledby="secItems">
@@ -491,6 +505,7 @@ dialog::backdrop{background:oklch(0.15 0.02 272 / .55)}
       <button class="icon-btn" id="btnProvNuevo" aria-label="Agregar proveedor"><svg class="ic"><use href="#i-plus"/></svg></button>
     </div>
     <div class="hint" id="provHint"></div>
+    <div class="viaje" data-viaje="prov"></div>
   </div>
 
   <div class="field"><label for="fNotas" id="lblNotas">Notas para el proveedor</label><textarea id="fNotas" class="inp" placeholder="Colores, tallas, fecha de entrega…"></textarea></div>
@@ -647,6 +662,24 @@ dialog::backdrop{background:oklch(0.15 0.02 272 / .55)}
       <div class="field"><label for="pvTel">WhatsApp</label><input id="pvTel" class="inp" type="tel" inputmode="tel" placeholder="0991234567"></div>
       <div class="field"><label for="pvNota">Nota</label><input id="pvNota" class="inp" placeholder="Qué productos te vende (opcional)"></div>
       <p class="hint">Números de Ecuador con 0 al inicio se convierten solos a +593.</p>
+      <h3 style="font-size:15px;margin-top:6px">Cuenta para depósitos</h3>
+      <div class="grid2">
+        <div class="field"><label for="pvBanco">Banco</label><input id="pvBanco" class="inp" list="bancosEc" placeholder="Banco Pichincha"></div>
+        <div class="field"><label for="pvTipo">Tipo de cuenta</label><select id="pvTipo" class="inp"><option value="">—</option><option>Ahorros</option><option>Corriente</option></select></div>
+      </div>
+      <datalist id="bancosEc"><option>Banco Pichincha</option><option>Banco Guayaquil</option><option>Produbanco</option><option>Banco del Pacífico</option><option>Banco Internacional</option><option>Banco Bolivariano</option><option>Banco del Austro</option><option>Banco de Loja</option><option>Banco Machala</option><option>BanEcuador</option><option>Cooperativa JEP</option><option>Cooperativa Policía Nacional</option><option>Cooperativa 29 de Octubre</option><option>Deuna</option></datalist>
+      <div class="field"><label for="pvCuenta">Número de cuenta</label><input id="pvCuenta" class="inp" inputmode="numeric" placeholder="2200000000"></div>
+      <div class="grid2">
+        <div class="field"><label for="pvTitular">Titular</label><input id="pvTitular" class="inp" placeholder="Nombre del titular"></div>
+        <div class="field"><label for="pvCed">CI / RUC del titular</label><input id="pvCed" class="inp" inputmode="numeric" placeholder="1712345678"></div>
+      </div>
+      <h3 style="font-size:15px;margin-top:6px">Ubicación del local</h3>
+      <div class="ubic-row">
+        <div class="field"><label for="pvMapa">Enlace de Google Maps</label><input id="pvMapa" class="inp" inputmode="url" placeholder="Pega el enlace o usa el GPS"></div>
+        <button class="icon-btn" id="pvGps" type="button" aria-label="Usar mi ubicación actual"><svg class="ic"><use href="#i-gps"/></svg></button>
+      </div>
+      <div class="ubic-ok" id="pvUbicOk"></div>
+      <p class="hint">Para el GPS tienes que estar en el local. Un enlace largo de Maps (con coordenadas) también deja pedir Uber directo.</p>
     </div>
     <div class="sheet-f">
       <button class="btn btn-danger" id="pvBorrar"><svg class="ic"><use href="#i-trash"/></svg>Eliminar</button>
@@ -815,10 +848,10 @@ function siguienteNum(){
 
 /* ═════════ Pedido en curso ═════════ */
 var cur=null;
-var CLI_CAMPOS=['nombre','tel','dir','empresa','ruc','mail','atendido'];
+var CLI_CAMPOS=['nombre','tel','dir','empresa','ruc','mail','atendido','mapa','lat','lng'];
 function cliVacio(){ var o={}; CLI_CAMPOS.forEach(function(k){ o[k]=''; }); o.atendido=emp().rep||''; return o; }
 function cliDe(c){ var o={}; c=c||{}; CLI_CAMPOS.forEach(function(k){ o[k]=String(c[k]||'').trim(); }); return o; }
-var CLI_IDS={nombre:'fCli',tel:'fCliTel',dir:'fCliDir',empresa:'fCliEmp',ruc:'fCliRuc',mail:'fCliMail',atendido:'fCliAt'};
+var CLI_IDS={nombre:'fCli',tel:'fCliTel',dir:'fCliDir',empresa:'fCliEmp',ruc:'fCliRuc',mail:'fCliMail',atendido:'fCliAt',mapa:'fCliMapa'};
 function totales(v){ var sub=calc(v.items).pub, t=num(v.iva), iv=Math.round(sub*t)/100, tot=sub+iv, ab=num(v.abono); return {sub:sub,tasa:t,iva:iv,total:tot,abono:ab,saldo:tot-ab}; }
 function pedidoVacio(modo){
   return {id:null,imgs:[],abono:0,iva:num(cfg().ivaDef),modo:modo||'proveedor',num:siguienteNum(),fecha:hoyISO(),provId:cfg().ultimoProv||'',
@@ -843,6 +876,7 @@ function pintarProvHint(){
   if(!telWA(p.tel)){ h.className='hint warn'; h.textContent='Este proveedor no tiene WhatsApp registrado.'; return; }
   h.textContent='WhatsApp: +'+telWA(p.tel)+(p.nota?' · '+p.nota:'');
 }
+
 function pintarModo(){
   var cli=cur.modo==='cliente';
   document.body.classList.toggle('modo-cli',cli);
@@ -871,7 +905,7 @@ function pintarForm(){
   $('fFecha').value=cur.fecha; $('fFechaCli').value=cur.fecha; $('fAbono').value=num(cur.abono)>0?decP(cur.abono):'';
   cur.cli=Object.assign(cliVacio(),{atendido:''},cur.cli||{}); for(var k in CLI_IDS) $(CLI_IDS[k]).value=cur.cli[k]||'';
   $('fNotas').value=cur.notas;
-  pintarCliResumen(); pintarItems(); pintarImgs();
+  pintarCliResumen(); pintarItems(); pintarImgs(); pintarUbicOk('cliUbicOk',cur.cli); pintarViajes();
 }
 
 function itemHTML(it,i){
@@ -965,7 +999,7 @@ $('items').addEventListener('click',function(e){
 });
 $('fProv').addEventListener('change',function(){
   if(this.value==='__nuevo'){ this.value=provPorId(cur.provId)?cur.provId:''; abrirProvForm(null,true); return; }
-  cur.provId=this.value; setCfg({ultimoProv:cur.provId}); marcarSucio(); pintarProvHint();
+  cur.provId=this.value; setCfg({ultimoProv:cur.provId}); marcarSucio(); pintarProvHint(); pintarViajes();
 });
 $('btnProvNuevo').onclick=function(){ abrirProvForm(null,true); };
 ['fFecha','fFechaCli'].forEach(function(id){ $(id).addEventListener('change',function(){ cur.fecha=this.value||hoyISO(); $('fFecha').value=$('fFechaCli').value=cur.fecha; marcarSucio(); }); });
@@ -973,7 +1007,7 @@ $('fAbono').addEventListener('input',function(){ cur.abono=this.value===''?0:num
 $('fAbono').addEventListener('change',function(){ this.value=num(cur.abono)>0?decP(cur.abono):''; });
 $('fEstado').addEventListener('change',function(){ cur.estado=this.value; marcarSucio(); pintarCabecera(); if(cur.id) guardar(true); });
 Object.keys(CLI_IDS).forEach(function(k){
-  $(CLI_IDS[k]).addEventListener('input',function(){ cur.cli[k]=this.value; marcarSucio(); pintarCliResumen(); });
+  $(CLI_IDS[k]).addEventListener('input',function(){ cur.cli[k]=this.value; marcarSucio(); pintarCliResumen(); if(k==='dir'||k==='nombre'||k==='empresa') pintarViajes(); });
 });
 $('fIva').addEventListener('change',function(){ cur.iva=num(this.value); marcarSucio(); pintarTotales(); });
 $('fNotas').addEventListener('input',function(){ cur.notas=this.value; marcarSucio(); });
@@ -1017,6 +1051,65 @@ $('imgs').addEventListener('click',function(e){
   var b=e.target.closest('[data-quitar]');
   if(b){ var id=b.getAttribute('data-quitar'); cur.imgs=(cur.imgs||[]).filter(function(x){ return x!==id; }); marcarSucio(); pintarImgs(); if(!enUso(id)) imgDel(id); return; }
   var t=e.target.closest('[data-img]'); if(t){ imgGet(t.getAttribute('data-img')).then(function(d){ if(!d) return; var w=window.open(); if(w){ w.document.write('<title>Referencia</title><body style="margin:0;background:#111;display:grid;place-items:center;min-height:100vh"><img src="'+d+'" style="max-width:100%;max-height:100vh">'); } }); }
+});
+
+/* ═════════ Ubicación, cuenta y viajes ═════════ */
+var pvCoords={lat:'',lng:''};
+function coordsDe(t){
+  t=String(t||'');
+  var m=t.match(/@(-?\d{1,2}\.\d+),(-?\d{1,3}\.\d+)/)||t.match(/[?&](?:q|query|ll|destination|daddr)=(-?\d{1,2}\.\d+)(?:,|%2C)\s*(-?\d{1,3}\.\d+)/i)||t.match(/!3d(-?\d{1,2}\.\d+)!4d(-?\d{1,3}\.\d+)/)||t.match(/^\s*(-?\d{1,2}\.\d+)\s*,\s*(-?\d{1,3}\.\d+)\s*$/);
+  if(!m) return null; var la=parseFloat(m[1]), ln=parseFloat(m[2]); if(Math.abs(la)>90||Math.abs(ln)>180) return null;
+  return {lat:String(la),lng:String(ln)};
+}
+function pintarUbicOk(id,c){ $(id).textContent=(c&&c.lat)?'Ubicación con coordenadas: Uber puede llevar el destino listo.':''; }
+function pedirGps(fin){
+  if(!navigator.geolocation){ toast('Este teléfono no permite leer la ubicación'); return; }
+  toast('Buscando tu ubicación…');
+  navigator.geolocation.getCurrentPosition(function(pos){
+    var la=pos.coords.latitude.toFixed(6), ln=pos.coords.longitude.toFixed(6); fin({lat:la,lng:ln,link:'https://www.google.com/maps?q='+la+','+ln}); toast('Ubicación guardada');
+  },function(err){ toast(err.code===1?'No diste permiso de ubicación':'No se pudo obtener la ubicación'); },{enableHighAccuracy:true,timeout:15000,maximumAge:0});
+}
+$('cliGps').onclick=function(){ pedirGps(function(u){ cur.cli.mapa=u.link; cur.cli.lat=u.lat; cur.cli.lng=u.lng; $('fCliMapa').value=u.link; marcarSucio(); pintarUbicOk('cliUbicOk',cur.cli); pintarViajes(); }); };
+$('fCliMapa').addEventListener('input',function(){ var c=coordsDe(this.value); cur.cli.lat=c?c.lat:''; cur.cli.lng=c?c.lng:''; pintarUbicOk('cliUbicOk',cur.cli); pintarViajes(); });
+$('pvGps').onclick=function(){ pedirGps(function(u){ pvCoords={lat:u.lat,lng:u.lng}; $('pvMapa').value=u.link; pintarUbicOk('pvUbicOk',pvCoords); }); };
+$('pvMapa').addEventListener('input',function(){ var c=coordsDe(this.value); pvCoords=c||{lat:'',lng:''}; pintarUbicOk('pvUbicOk',pvCoords); });
+function destino(tipo){
+  if(tipo==='cli'){ var c=cur.cli||{}; return {nombre:c.empresa||c.nombre||'Cliente',dir:c.dir||'',link:c.mapa||'',lat:c.lat||'',lng:c.lng||''}; }
+  var p=provPorId(cur.provId); if(!p) return null; var u=p.ubic||{};
+  return {nombre:p.nombre,dir:p.nota||'',link:u.link||'',lat:u.lat||'',lng:u.lng||'',banco:p.banco};
+}
+function pintarViajes(){
+  document.querySelectorAll('[data-viaje]').forEach(function(box){
+    var d=destino(box.getAttribute('data-viaje')); if(!d){ box.innerHTML=''; return; }
+    var hayLugar=d.link||d.lat||d.dir, b='';
+    if(hayLugar){
+      b+='<button class="btn btn-ghost" data-ir="maps"><svg class="ic"><use href="#i-pin"/></svg>Cómo llegar</button>';
+      b+='<button class="btn btn-ghost" data-ir="uber"><svg class="ic"><use href="#i-car"/></svg>Uber</button>';
+      b+='<button class="btn btn-ghost" data-ir="indrive"><svg class="ic"><use href="#i-car"/></svg>InDrive</button>';
+    }
+    if(d.banco && d.banco.numero) b+='<button class="btn btn-ghost" data-ir="cuenta" style="flex-basis:100%"><svg class="ic"><use href="#i-bank"/></svg>Copiar cuenta: '+esc(d.banco.banco||'Banco')+' '+esc(d.banco.numero)+'</button>';
+    box.innerHTML=b;
+  });
+}
+function copiar(txt,msg){ var ok=function(){ toast(msg||'Copiado'); };
+  if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(ok,function(){ copiarViejo(txt); ok(); }); else { copiarViejo(txt); ok(); } }
+document.addEventListener('click',function(e){
+  var b=e.target.closest('[data-ir]'); if(!b) return;
+  var d=destino(b.closest('[data-viaje]').getAttribute('data-viaje')); if(!d) return;
+  var tipo=b.getAttribute('data-ir'), texto=[d.nombre,d.dir].filter(Boolean).join(', ');
+  if(tipo==='maps'){
+    var u=d.lat?('https://www.google.com/maps/dir/?api=1&destination='+d.lat+','+d.lng):(d.link||('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(texto)));
+    window.open(u,'_blank');
+  }else if(tipo==='uber'){
+    if(!d.lat){ copiar(d.dir||texto,'Sin coordenadas: dirección copiada, pégala en Uber'); window.open('https://m.uber.com/ul/?action=setPickup&pickup=my_location','_blank'); return; }
+    window.open('https://m.uber.com/ul/?action=setPickup&pickup=my_location&dropoff[latitude]='+d.lat+'&dropoff[longitude]='+d.lng+'&dropoff[nickname]='+encodeURIComponent(d.nombre)+(d.dir?'&dropoff[formatted_address]='+encodeURIComponent(d.dir):''),'_blank');
+  }else if(tipo==='indrive'){
+    copiar(d.dir||texto,'Dirección copiada: pégala como destino en InDrive');
+    var pkg='sinet.startup.inDriver', fb=encodeURIComponent('https://play.google.com/store/apps/details?id='+pkg);
+    setTimeout(function(){ location.href='intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package='+pkg+';S.browser_fallback_url='+fb+';end'; },350);
+  }else if(tipo==='cuenta'){
+    var k=d.banco; copiar([k.banco,k.tipo?('Cuenta de '+k.tipo.toLowerCase()):'','N° '+k.numero,k.titular,k.ced?('CI/RUC '+k.ced):''].filter(Boolean).join('\n'),'Datos de la cuenta copiados');
+  }
 });
 
 /* ═════════ Guardar / nuevo ═════════ */
@@ -1424,6 +1517,9 @@ function abrirProvForm(id, desdeForm){
   var p=id?provPorId(id):null;
   $('dlgProvFormT').textContent=p?'Editar proveedor':'Nuevo proveedor';
   $('pvNombre').value=p?p.nombre:''; $('pvTel').value=p?p.tel:''; $('pvNota').value=p?(p.nota||''):'';
+  var bk=(p&&p.banco)||{}, ub=(p&&p.ubic)||{};
+  $('pvBanco').value=bk.banco||''; $('pvTipo').value=bk.tipo||''; $('pvCuenta').value=bk.numero||''; $('pvTitular').value=bk.titular||''; $('pvCed').value=bk.ced||'';
+  $('pvMapa').value=ub.link||''; pvCoords={lat:ub.lat||'',lng:ub.lng||''}; pintarUbicOk('pvUbicOk',pvCoords);
   $('pvBorrar').hidden=!p;
   abrir('dlgProvForm'); $('pvNombre').focus();
 }
@@ -1432,11 +1528,13 @@ $('pvGuardar').onclick=function(){
   if(!nombre){ toast('Escribe el nombre del proveedor'); $('pvNombre').focus(); return; }
   if(tel && telWA(tel).length<9){ toast('El número de WhatsApp parece incompleto'); $('pvTel').focus(); return; }
   var a=provs(), id=provEdit;
-  if(id){ a.forEach(function(p){ if(p.id===id){ p.nombre=nombre; p.tel=tel; p.nota=nota; } }); }
-  else{ id=uid(); a.push({id:id,nombre:nombre,tel:tel,nota:nota}); }
+  var banco={banco:$('pvBanco').value.trim(),tipo:$('pvTipo').value,numero:$('pvCuenta').value.trim(),titular:$('pvTitular').value.trim(),ced:$('pvCed').value.trim()};
+  var link=$('pvMapa').value.trim(), co=coordsDe(link)||pvCoords||{}, ubic={link:link,lat:co.lat||'',lng:co.lng||''};
+  if(id){ a.forEach(function(p){ if(p.id===id){ p.nombre=nombre; p.tel=tel; p.nota=nota; p.banco=banco; p.ubic=ubic; p.act=Date.now(); } }); }
+  else{ id=uid(); a.push({id:id,nombre:nombre,tel:tel,nota:nota,banco:banco,ubic:ubic,act:Date.now()}); }
   saveProvs(a); cerrar('dlgProvForm');
   if(provDesdeForm){ cur.provId=id; setCfg({ultimoProv:id}); marcarSucio(); }
-  pintarProvSelect(); pintarCfgProvs();
+  pintarProvSelect(); pintarCfgProvs(); pintarViajes();
   toast(provEdit?'Proveedor actualizado':'Proveedor agregado');
 };
 $('pvBorrar').onclick=function(){
