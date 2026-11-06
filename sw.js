@@ -2,7 +2,7 @@
    Basado en el sw corregido de RICCHARY (ago-2026): guarda el index en caché
    y usa el respaldo también ante 404/503, no solo cuando se cae la red.
    AL SUBIR CAMBIOS: sube el número de CACHE. */
-const CACHE = 'flash-v11';
+const CACHE = 'flash-v12';
 const ASSETS = ['./','./index.html','./manifest.json','./icon-192.png','./icon-512.png','./icon-maskable-512.png','./jspdf.umd.min.js'];
 
 self.addEventListener('install', e => {

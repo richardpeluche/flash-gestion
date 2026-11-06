@@ -76,6 +76,7 @@ main{max-width:760px;margin:0 auto;padding:16px 14px 24px;display:flex;flex-dire
 .st-borrador{background:oklch(0.94 0.01 272);color:var(--ink-3)}
 .st-cotizada{background:oklch(0.95 0.03 300);color:oklch(0.45 0.13 300)}
 .st-enviada{background:var(--info-soft);color:var(--info)}
+.st-produccion{background:oklch(0.95 0.04 230);color:oklch(0.45 0.12 230)}
 .st-entregada{background:var(--warn-soft);color:var(--warn)}
 .st-cobrada{background:var(--gain-soft);color:var(--gain-strong)}
 
@@ -176,6 +177,23 @@ body.en-inicio{padding-bottom:env(safe-area-inset-bottom)}
 .path-prov{background:var(--ink);color:#fff}
 .path-prov .path-ic{background:var(--volt);color:var(--ink)}
 .path-prov .path-t span{color:oklch(0.82 0.02 272)}
+.path-rec{background:oklch(0.95 0.04 230);border:1.5px solid oklch(0.80 0.08 230);color:var(--text)}
+.path-rec .path-ic{background:oklch(0.45 0.12 230);color:#fff}
+.path-rec .path-t span{color:var(--muted)}
+.nube-st{display:flex;align-items:center;gap:8px;font-size:13.5px}
+.nube-st i{width:9px;height:9px;border-radius:50%;background:var(--gain);flex:none}
+.nube-st.off i{background:var(--line-strong)}
+.clave{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;background:oklch(0.96 0.01 272);border-radius:var(--r-sm);padding:10px 12px;overflow-wrap:anywhere}
+.rec-items{font-size:14px;line-height:1.45;display:flex;flex-direction:column;gap:6px}
+.rec-items div{display:flex;flex-direction:column}
+.rec-items small{color:var(--muted)}
+.rec-tot{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;font-size:12.5px;color:var(--muted)}
+.rec-tot b{display:block;font-size:15px;color:var(--text)}
+.rec-tot .com b{color:var(--gain-strong)}
+.est-seg{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+.est-seg button{min-height:42px;border-radius:var(--r-sm);border:1px solid var(--line-strong);font-weight:650;font-size:13.5px;background:var(--surface)}
+.est-seg button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.prov-con{font-size:12.5px;font-weight:650;color:var(--gain-strong)}
 .path-cli{background:var(--surface);border:1.5px solid var(--ink);color:var(--text)}
 .path-cli .path-ic{background:oklch(0.95 0.03 300);color:oklch(0.42 0.13 300)}
 .path-cli .path-t span{color:var(--muted)}
@@ -405,6 +423,10 @@ dialog::backdrop{background:oklch(0.15 0.02 272 / .55)}
     <span class="path-ic"><svg class="ic"><use href="#i-pdf"/></svg></span>
     <span class="path-t"><b>Cotización a cliente</b><span>PDF con tu marca y solo tu precio, por WhatsApp</span></span>
   </button>
+  <button class="path path-rec" id="goRec" type="button" hidden>
+    <span class="path-ic"><svg class="ic"><use href="#i-truck"/></svg></span>
+    <span class="path-t"><b>Pedidos recibidos <span id="recN"></span></b><span>Lo que tus vendedores te piden por la app</span></span>
+  </button>
   <button class="cont" id="goSeguir" type="button" hidden></button>
   <div class="home-links">
     <button class="btn btn-ghost" id="homeHist"><svg class="ic"><use href="#i-hist"/></svg>Historial</button>
@@ -434,6 +456,7 @@ dialog::backdrop{background:oklch(0.15 0.02 272 / .55)}
           <option value="borrador">Sin enviar</option>
           <option value="cotizada">Cotizado al cliente</option>
           <option value="enviada">Enviada</option>
+          <option value="produccion">En producción</option>
           <option value="entregada">Entregada</option>
           <option value="cobrada">Comisión cobrada</option>
         </select>
@@ -532,12 +555,14 @@ dialog::backdrop{background:oklch(0.15 0.02 272 / .55)}
     <div class="sheet-h"><h2 id="dlgEnviarT">Enviar al proveedor</h2><button class="x" data-close aria-label="Cerrar"><svg class="ic"><use href="#i-x"/></svg></button></div>
     <div class="sheet-b">
       <div id="envDestino" class="hint"></div>
+      <p class="note ok" id="envAppNota" hidden></p>
       <label class="check"><input type="checkbox" id="envGanancia" checked><span><b>Incluir precio de venta y mi ganancia</b><br><span class="hint">Si lo desmarcas, el proveedor solo ve cantidad, producto y precio de fábrica.</span></span></label>
       <div class="prev" id="envPrev"></div>
     </div>
     <div class="sheet-f">
       <button class="btn btn-ghost" id="envCopiar"><svg class="ic"><use href="#i-copy"/></svg>Copiar texto</button>
       <button class="btn btn-volt" id="envAbrir"><svg class="ic"><use href="#i-wa"/></svg>Abrir WhatsApp</button>
+      <button class="btn btn-ink" id="envApp" hidden style="flex-basis:100%"><svg class="ic"><use href="#i-truck"/></svg>Enviar por la app</button>
       <button class="btn btn-ink" id="envFotos" hidden style="flex-basis:100%"><svg class="ic"><use href="#i-wa"/></svg>Compartir con imágenes</button>
     </div>
   </div>
@@ -574,6 +599,7 @@ dialog::backdrop{background:oklch(0.15 0.02 272 / .55)}
         <button data-f="borrador" aria-pressed="false">Sin enviar</button>
         <button data-f="cotizada" aria-pressed="false">Cotizadas</button>
         <button data-f="enviada" aria-pressed="false">Enviadas</button>
+        <button data-f="produccion" aria-pressed="false">En producción</button>
         <button data-f="entregada" aria-pressed="false">Entregadas</button>
         <button data-f="cobrada" aria-pressed="false">Cobradas</button>
       </div>
@@ -680,6 +706,8 @@ dialog::backdrop{background:oklch(0.15 0.02 272 / .55)}
       </div>
       <div class="ubic-ok" id="pvUbicOk"></div>
       <p class="hint">Para el GPS tienes que estar en el local. Un enlace largo de Maps (con coordenadas) también deja pedir Uber directo.</p>
+      <h3 style="font-size:15px;margin-top:6px">Conectar a la app</h3>
+      <div id="pvConectar"></div>
     </div>
     <div class="sheet-f">
       <button class="btn btn-danger" id="pvBorrar"><svg class="ic"><use href="#i-trash"/></svg>Eliminar</button>
@@ -693,6 +721,10 @@ dialog::backdrop{background:oklch(0.15 0.02 272 / .55)}
   <div class="sheet">
     <div class="sheet-h"><h2 id="dlgCfgT">Ajustes</h2><button class="x" data-close aria-label="Cerrar"><svg class="ic"><use href="#i-x"/></svg></button></div>
     <div class="sheet-b">
+      <div class="cfg-sec" id="nubeSec">
+        <h3>Cuenta en la nube</h3>
+        <div id="nubeBox"></div>
+      </div>
       <div class="cfg-sec">
         <div class="sec-h" style="margin:0"><h3>Proveedores</h3><span id="cProvN"></span></div>
         <div class="list" id="cProvLista"></div>
@@ -756,8 +788,39 @@ dialog::backdrop{background:oklch(0.15 0.02 272 / .55)}
         <h3>Zona de cuidado</h3>
         <button class="btn btn-danger" id="cBorrarTodo"><svg class="ic"><use href="#i-trash"/></svg>Borrar todos los datos</button>
       </div>
-      <p class="hint" style="text-align:center">flash-gestion · v1.4</p>
+      <p class="hint" style="text-align:center">flash-gestion · v1.5</p>
     </div>
+  </div>
+</dialog>
+
+<!-- Pedidos recibidos (vista del proveedor) -->
+<dialog id="dlgRec" aria-labelledby="dlgRecT">
+  <div class="sheet">
+    <div class="sheet-h"><h2 id="dlgRecT">Pedidos recibidos</h2><button class="x" data-close aria-label="Cerrar"><svg class="ic"><use href="#i-x"/></svg></button></div>
+    <div class="sheet-b">
+      <div class="seg" id="recFiltro" role="group" aria-label="Filtrar">
+        <button data-rf="activos" aria-pressed="true">Pendientes</button>
+        <button data-rf="todos" aria-pressed="false">Todos</button>
+      </div>
+      <p class="hint" id="recSt" aria-live="polite"></p>
+      <div id="recLista" style="display:flex;flex-direction:column;gap:10px"></div>
+    </div>
+  </div>
+</dialog>
+
+<!-- Invitación recibida -->
+<dialog id="dlgInv" aria-labelledby="dlgInvT">
+  <div class="sheet">
+    <div class="sheet-h"><h2 id="dlgInvT">Te invitaron a Flash</h2><button class="x" data-close aria-label="Cerrar"><svg class="ic"><use href="#i-x"/></svg></button></div>
+    <div class="sheet-b">
+      <p>Con Flash recibes los pedidos de tu vendedor aquí mismo: cantidades, precios, su comisión e imágenes. Tú marcas cuando está en producción, entregado y cuando pagaste la comisión.</p>
+      <div id="invCampos">
+        <div class="field"><label for="invNombre">Tu nombre o el de tu negocio</label><input id="invNombre" class="inp" placeholder="Gorras Don Luis"></div>
+        <div class="field" style="margin-top:12px"><label for="invTel">Tu WhatsApp</label><input id="invTel" class="inp" type="tel" inputmode="tel" placeholder="0991234567"></div>
+      </div>
+      <p class="hint" id="invSt" aria-live="polite"></p>
+    </div>
+    <div class="sheet-f"><button class="btn btn-volt" id="invAceptar">Aceptar invitación</button></div>
   </div>
 </dialog>
 
@@ -784,7 +847,7 @@ dialog::backdrop{background:oklch(0.15 0.02 272 / .55)}
 var $=function(id){ return document.getElementById(id); };
 var K={ventas:'flash_ventas',prov:'flash_proveedores',prod:'flash_productos',cfg:'flash_cfg',draft:'flash_borrador'};
 function load(k,def){ try{ var r=localStorage.getItem(k); return r?JSON.parse(r):def; }catch(e){ return def; } }
-function save(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); return true; }catch(e){ toast('No se pudo guardar en este dispositivo'); return false; } }
+function save(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); if(window.FlashNube) FlashNube.cambio(k); return true; }catch(e){ toast('No se pudo guardar en este dispositivo'); return false; } }
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
 function num(v){
   if(typeof v==='number') return isFinite(v)?v:0;
@@ -809,8 +872,8 @@ function telWA(t){
   return d;
 }
 function etq(n){ return 'VENTAS '+String(n).padStart(3,'0'); }
-var ESTADOS={borrador:'Sin enviar',cotizada:'Cotizado al cliente',enviada:'Enviada',entregada:'Entregada',cobrada:'Comisión cobrada'};
-function esReal(e){ return e==='enviada'||e==='entregada'||e==='cobrada'; }
+var ESTADOS={borrador:'Sin enviar',cotizada:'Cotizado al cliente',enviada:'Enviada',produccion:'En producción',entregada:'Entregada',cobrada:'Comisión cobrada'};
+function esReal(e){ return e==='enviada'||e==='produccion'||e==='entregada'||e==='cobrada'; }
 
 function toast(msg, accion, fn){
   var w=$('toasts'); w.innerHTML='';
@@ -1145,6 +1208,7 @@ function guardar(silencioso, sinProveedor){
   if(reg.estado!=='cobrada') reg.cobradoAt='';
   if(esReal(reg.estado) && !reg.enviadoAt) reg.enviadoAt=ahora;
   if(!saveVentas(a)) return false;
+  if(window.FlashNube && esReal(reg.estado)) FlashNube.publicar(reg);
   setCfg({ultimoNum:Math.max(num(cfg().ultimoNum),num(reg.num))}); if(reg.provId) setCfg({ultimoProv:reg.provId}); pintarMeta();
   cur.id=reg.id; cur.sucio=false; persistirBorrador(); pintarCabecera(); pintarItems();
   if(!silencioso) toast(etq(reg.num)+' guardado');
@@ -1215,6 +1279,9 @@ function pintarEnvio(){
   $('envDestino').innerHTML=t?('Para <b>'+esc(p.nombre)+'</b> · +'+esc(t)):('<span class="hint warn">'+esc(p.nombre)+' no tiene WhatsApp registrado. Puedes copiar el texto o agregar su número en Ajustes.</span>');
   $('envPrev').textContent=mensaje(envVenta,$('envGanancia').checked);
   $('envAbrir').disabled=!t;
+  var con=window.FlashNube && FlashNube.conectado(envVenta.provId);
+  $('envApp').hidden=!con; $('envAppNota').hidden=!con;
+  if(con) $('envAppNota').textContent=p.nombre+' tiene Flash: el pedido le llega directo a su app. WhatsApp queda como opción.';
 }
 var envFiles=[];
 function abrirEnvio(v){ envVenta=v; envFiles=[]; pintarEnvio(); $('envFotos').hidden=true; abrir('dlgEnviar');
@@ -1230,6 +1297,7 @@ function marcarEnviada(){
   if(!envVenta || esReal(envVenta.estado)) return;
   var a=ventas(); a.forEach(function(v){ if(v.id===envVenta.id){ v.estado='enviada'; v.enviadoAt=new Date().toISOString(); } });
   saveVentas(a); envVenta.estado='enviada'; pintarMeta();
+  var vv=ventas().filter(function(x){ return x.id===envVenta.id; })[0]; if(vv && window.FlashNube) FlashNube.publicar(vv);
   if(cur.id===envVenta.id){ cur.estado='enviada'; persistirBorrador(); pintarCabecera(); }
   if($('dlgHist').open) pintarHist();
 }
@@ -1238,6 +1306,12 @@ $('envAbrir').onclick=function(){
   var url='https://wa.me/'+telWA(p.tel)+'?text='+encodeURIComponent(mensaje(envVenta,$('envGanancia').checked));
   window.open(url,'_blank');
   marcarEnviada(); cerrar('dlgEnviar'); toast(etq(envVenta.num)+' marcado como enviado');
+};
+$('envApp').onclick=function(){
+  var v=envVenta; marcarEnviada();
+  var reg=ventas().filter(function(x){ return x.id===v.id; })[0]||v;
+  FlashNube.publicar(reg,true).then(function(ok){ toast(ok?etq(v.num)+' enviado por la app':'Sin conexión: se enviará al volver el internet'); });
+  cerrar('dlgEnviar');
 };
 $('envFotos').onclick=function(){
   if(!envFiles.length) return;
@@ -1265,7 +1339,7 @@ K.logo='flash_logo';
 function emp(){ var c=cfg(); var e=c.emp||{}; return {nombre:e.nombre||'',rep:e.rep||c.nombre||'',tel:e.tel||'',web:e.web||'',color:e.color||'#0F8198',cond:e.cond||''}; }
 function setEmp(o){ var e=cfg().emp||{}; for(var k in o) e[k]=o[k]; setCfg({emp:e}); }
 function logo(){ try{ return localStorage.getItem(K.logo)||''; }catch(e){ return ''; } }
-function setLogo(d){ try{ if(d) localStorage.setItem(K.logo,d); else localStorage.removeItem(K.logo); return true; }catch(e){ toast('El logo es muy pesado para guardarlo'); return false; } }
+function setLogo(d){ try{ if(d) localStorage.setItem(K.logo,d); else localStorage.removeItem(K.logo); if(window.FlashNube) FlashNube.cambio(K.logo); return true; }catch(e){ toast('El logo es muy pesado para guardarlo'); return false; } }
 function pintarEmp(){
   var e=emp(), l=logo();
   $('eIva').value=String(num(cfg().ivaDef)); $('eNombre').value=e.nombre; $('eRep').value=(cfg().emp||{}).rep||''; $('eTel').value=e.tel; $('eWeb').value=e.web; $('eColor').value=e.color; $('eCond').value=e.cond;
@@ -1514,6 +1588,7 @@ document.querySelectorAll('dialog').forEach(function(d){
 var provEdit=null, provDesdeForm=false;
 function abrirProvForm(id, desdeForm){
   provEdit=id; provDesdeForm=!!desdeForm;
+  if(window.FlashNube) FlashNube.pintarConectar(id);
   var p=id?provPorId(id):null;
   $('dlgProvFormT').textContent=p?'Editar proveedor':'Nuevo proveedor';
   $('pvNombre').value=p?p.nombre:''; $('pvTel').value=p?p.tel:''; $('pvNota').value=p?(p.nota||''):'';
@@ -1665,6 +1740,7 @@ function cambiarEstado(id, estado){
   saveVentas(a);
   if(cur.id===id){ cur.estado=estado; persistirBorrador(); pintarCabecera(); }
   pintarMeta();
+  var v=ventas().filter(function(x){ return x.id===id; })[0]; if(v && window.FlashNube && esReal(v.estado)) FlashNube.publicar(v);
 }
 function cargarVenta(v, repetir){
   if(cur.sucio && cur.items.length && cur.id!==v.id && !confirm('El pedido actual tiene cambios sin guardar. ¿Continuar?')) return false;
@@ -1814,6 +1890,7 @@ function pintarCfgProvs(){
   }).join(''):'<p class="hint">Aún no tienes proveedores.</p>';
 }
 function pintarCfg(){
+  if(window.FlashNube) FlashNube.pintarAjustes();
   pintarEmp();
   var c=cfg(); $('cNombre').value=c.nombre||''; $('cMeta').value=num(c.meta)>0?decP(c.meta):''; $('cDias').value=c.diasCobro||'';
   $('cUltimo').textContent=c.ultimoRespaldo?'Último respaldo: '+new Date(c.ultimoRespaldo).toLocaleString('es-EC'):'Todavía no has descargado un respaldo.';
@@ -2164,12 +2241,271 @@ var SEMILLA=[
   saveProds(a); setCfg({semilla:'v2-16'});
 })();
 
+/* ═════════ Nube: sincronización y pedidos compartidos ═════════ */
+var FlashNube=(function(){
+  var URL_='https://shcbozuzwzkzphkmjfwo.supabase.co', KEY='sb_publishable_6SPPZniYeZXK3CxV81Y92g_A9tn3y7b';
+  var KN='flash_nube', KH='flash_nube_hash';
+  function st(){ return load(KN,null); }
+  function setSt(o){ var c=st()||{}; for(var k in o) c[k]=o[k]; try{ localStorage.setItem(KN,JSON.stringify(c)); }catch(e){} return c; }
+  function rpc(fn,args){
+    return fetch(URL_+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:JSON.stringify(args||{})})
+      .then(function(r){ return r.text().then(function(t){ var j=null; try{ j=t?JSON.parse(t):null; }catch(e){}
+        if(!r.ok) throw new Error((j&&(j.message||j.hint))||('HTTP '+r.status)); return j; }); });
+  }
+  function hash(x){ var s=JSON.stringify(x), h=5381; for(var i=0;i<s.length;i++) h=((h<<5)+h+s.charCodeAt(i))|0; return String(h); }
+  var CFG_SYNC=['emp','meta','diasCobro','ivaDef','nombre','ultimoNum','semilla'];
+  function cfgSub(){ var c=cfg(), o={}; CFG_SYNC.forEach(function(k){ if(c[k]!==undefined) o[k]=c[k]; }); return o; }
+  function locales(){
+    var m={};
+    ventas().forEach(function(v){ m['venta:'+v.id]={tipo:'venta',id:v.id,data:v}; });
+    provs().forEach(function(v){ m['prov:'+v.id]={tipo:'prov',id:v.id,data:v}; });
+    prods().forEach(function(v){ m['prod:'+v.id]={tipo:'prod',id:v.id,data:v}; });
+    m['cfg:cfg']={tipo:'cfg',id:'cfg',data:cfgSub()};
+    var l=logo(); if(l) m['cfg:logo']={tipo:'cfg',id:'logo',data:l};
+    return m;
+  }
+  var aplicando=false, enCurso=null, timer=null, enlaces={};
+  function cambio(k){ if(aplicando || !st() || !st().clave) return; if([K.ventas,K.prov,K.prod,K.cfg,K.logo].indexOf(k)<0) return; clearTimeout(timer); timer=setTimeout(sync,2500); }
+  function aplicarRemoto(items){
+    if(!items || !items.length) return 0;
+    var hs=load(KH,{}), vs=ventas(), ps=provs(), pr=prods(), n=0, faltan=[];
+    function upsert(arr,it){ var i=-1; arr.forEach(function(x,k){ if(x.id===it.id) i=k; }); if(it.borrado){ if(i>-1){ arr.splice(i,1); n++; } } else { if(i>-1) arr[i]=it.data; else arr.push(it.data); n++; } }
+    items.forEach(function(it){
+      var key=it.tipo+':'+it.id;
+      if(it.tipo==='venta'){ upsert(vs,it); if(!it.borrado) (it.data.imgs||[]).forEach(function(id){ faltan.push(id); }); }
+      else if(it.tipo==='prov') upsert(ps,it);
+      else if(it.tipo==='prod') upsert(pr,it);
+      else if(it.tipo==='cfg' && it.id==='cfg' && it.data){ var c=cfg(); CFG_SYNC.forEach(function(k){ if(it.data[k]!==undefined) c[k]=it.data[k]; }); c.ultimoNum=Math.max(num(c.ultimoNum),num(it.data.ultimoNum)); try{ localStorage.setItem(K.cfg,JSON.stringify(c)); }catch(e){} }
+      else if(it.tipo==='cfg' && it.id==='logo' && it.data){ try{ localStorage.setItem(K.logo,it.data); }catch(e){} }
+      hs[key]=it.borrado?'x':hash(it.data);
+    });
+    aplicando=true; saveVentas(vs); saveProvs(ps); saveProds(pr); aplicando=false;
+    try{ localStorage.setItem(KH,JSON.stringify(hs)); }catch(e){}
+    faltan.forEach(function(id){ imgGet(id).then(function(d){ if(d) return; rpc('flash_img',{p_clave:st().clave,p_vendedor:null,p_id:id}).then(function(dd){ if(dd) imgPut(id,dd); }).catch(function(){}); }); });
+    return n;
+  }
+  function aplicarEstados(es){
+    if(!es || !es.length) return;
+    var a=ventas(), cambios=[];
+    es.forEach(function(e){ a.forEach(function(v){ if(v.id===e.id && v.estado!==e.estado && esReal(e.estado)){
+      v.estado=e.estado; v.actualizado=new Date().toISOString(); if(e.estado==='cobrada') v.cobradoAt=v.cobradoAt||v.actualizado; cambios.push(v); } }); });
+    if(!cambios.length) return;
+    saveVentas(a);
+    cambios.forEach(function(v){ if(cur.id===v.id){ cur.estado=v.estado; persistirBorrador(); pintarCabecera(); } });
+    var v=cambios[0]; toast((v.provNombre||'Tu proveedor')+' marcó '+etq(v.num)+': '+ESTADOS[v.estado]+(cambios.length>1?' (y '+(cambios.length-1)+' más)':''));
+    pintarMeta(); if($('dlgHist').open) pintarHist();
+  }
+  function subirImgsDe(lista){
+    var s=st(), hechas=s.imgsSubidas||{}, ids=[];
+    lista.forEach(function(v){ (v.imgs||[]).forEach(function(id){ if(!hechas[id]) ids.push(id); }); });
+    return ids.reduce(function(pr,id){ return pr.then(function(){ return imgGet(id).then(function(d){ if(!d) return;
+      return rpc('flash_subir_img',{p_clave:s.clave,p_id:id,p_data:d}).then(function(){ hechas[id]=1; setSt({imgsSubidas:hechas}); }); }); }); }, Promise.resolve()).catch(function(){});
+  }
+  function sync(){
+    var s=st(); if(!s || !s.clave) return Promise.resolve(false);
+    if(enCurso) return enCurso;
+    if(!navigator.onLine){ pintarEstadoNube('Sin internet: se sincroniza al volver'); return Promise.resolve(false); }
+    var desde=s.desde?new Date(new Date(s.desde).getTime()-3000).toISOString():'1970-01-01T00:00:00Z';
+    enCurso=rpc('flash_bajar',{p_clave:s.clave,p_desde:desde}).then(function(r){
+      var n=aplicarRemoto(r.items||[]); aplicarEstados(r.estados||[]);
+      setSt({desde:r.ahora});
+      if(n){ pintarProvSelect(); if(!cur.sucio || !cur.items.length){ /* el borrador queda igual */ } }
+      var hs=load(KH,{}), loc=locales(), sub=[], ahora=Date.now();
+      Object.keys(loc).forEach(function(k){ var h=hash(loc[k].data); if(hs[k]!==h){ sub.push({tipo:loc[k].tipo,id:loc[k].id,data:loc[k].data,act:ahora}); hs[k]=h; } });
+      Object.keys(hs).forEach(function(k){ if(!loc[k] && hs[k]!=='x'){ var p=k.split(':'); sub.push({tipo:p[0],id:p.slice(1).join(':'),data:null,act:ahora,borrado:true}); hs[k]='x'; } });
+      var lotes=[]; for(var i=0;i<sub.length;i+=100) lotes.push(sub.slice(i,i+100));
+      return lotes.reduce(function(pr,l){ return pr.then(function(){ return rpc('flash_subir',{p_clave:s.clave,p_items:l}); }); },Promise.resolve())
+        .then(function(){ try{ localStorage.setItem(KH,JSON.stringify(hs)); }catch(e){} setSt({ultSync:new Date().toISOString()});
+          return subirImgsDe(ventas()); })
+        .then(function(){ return refrescarEnlaces(); });
+    }).then(function(){ pintarEstadoNube(); return true; })
+      .catch(function(e){ pintarEstadoNube('No se pudo sincronizar: '+e.message); return false; })
+      .then(function(r){ enCurso=null; return r; });
+    return enCurso;
+  }
+  function refrescarEnlaces(){
+    var s=st(); if(!s||!s.clave) return Promise.resolve();
+    return rpc('flash_enlaces_mios',{p_clave:s.clave}).then(function(l){ enlaces={}; (l||[]).forEach(function(e){ enlaces[e.prov_id]=e; }); setSt({enlaces:enlaces}); })
+      .then(function(){ return rpc('flash_yo',{p_clave:s.clave}); }).then(function(y){ setSt({esProveedor:y.proveedorDe>0,nombre:y.nombre}); pintarHomeRec(); }).catch(function(){});
+  }
+  function conectado(provId){ var s=st(); var e=(s&&s.enlaces||enlaces)[provId]; return !!(s && s.clave && e && e.conectado); }
+  function datosPublicos(v){
+    return {num:v.num,fecha:v.fecha,items:(v.items||[]).map(function(i){ return {desc:i.desc,qty:num(i.qty),fab:num(i.fab),pub:num(i.pub)}; }),
+      notas:v.notas||'',imgs:v.imgs||[],vendedor:(emp().nombre||cfg().nombre||''),provNombre:v.provNombre||''};
+  }
+  function publicar(v,forzar){
+    var s=st(); if(!s || !s.clave || !v || !v.provId) return Promise.resolve(false);
+    if(!forzar && !conectado(v.provId)) return Promise.resolve(false);
+    return subirImgsDe([v]).then(function(){ return rpc('flash_publicar',{p_clave:s.clave,p_id:v.id,p_prov_id:v.provId,p_data:datosPublicos(v),p_estado:v.estado}); })
+      .then(function(){ return true; }).catch(function(){ var pend=st().pendPub||{}; pend[v.id]=1; setSt({pendPub:pend}); return false; });
+  }
+  function reintentarPub(){ var s=st(); if(!s||!s.pendPub) return; var ids=Object.keys(s.pendPub); if(!ids.length) return; setSt({pendPub:{}});
+    ventas().filter(function(v){ return ids.indexOf(v.id)>-1; }).forEach(function(v){ publicar(v,true); }); }
+
+  /* ── cuenta ── */
+  function activar(nombre){
+    return rpc('flash_crear_cuenta',{p_nombre:nombre,p_tel:emp().tel||''}).then(function(r){
+      try{ localStorage.removeItem(KH); }catch(e){}
+      setSt({clave:r.clave,id:r.id,nombre:nombre,desde:null,imgsSubidas:{}}); return sync();
+    });
+  }
+  function entrar(clave){
+    return rpc('flash_yo',{p_clave:clave}).then(function(y){
+      try{ localStorage.removeItem(KH); }catch(e){}
+      setSt({clave:clave,id:y.id,nombre:y.nombre,desde:null,imgsSubidas:{},esProveedor:y.proveedorDe>0}); return sync();
+    });
+  }
+  function salir(){ try{ localStorage.removeItem(KN); localStorage.removeItem(KH); }catch(e){} enlaces={}; pintarAjustes(); pintarHomeRec(); }
+
+  /* ── UI ajustes ── */
+  function pintarEstadoNube(msg){
+    var el=$('nubeEstado'); if(!el) return; var s=st();
+    el.className='nube-st'+(msg?' off':''); el.innerHTML='<i></i><span>'+esc(msg||('Sincronizado'+(s&&s.ultSync?' · '+new Date(s.ultSync).toLocaleString('es-EC',{dateStyle:'short',timeStyle:'short'}):'')))+'</span>';
+  }
+  function pintarAjustes(){
+    var box=$('nubeBox'), s=st();
+    if(!s || !s.clave){
+      box.innerHTML='<p class="hint">Guarda tus pedidos, proveedores y catálogo en la nube para usarlos en otro teléfono o en la PC, y para que tus proveedores reciban los pedidos en su app.</p>'+
+        '<div class="field"><label for="nNombre">Tu nombre o el de tu negocio</label><input id="nNombre" class="inp" value="'+esc(emp().nombre||cfg().nombre||'')+'"></div>'+
+        '<button class="btn btn-ink" id="nActivar"><svg class="ic"><use href="#i-ul"/></svg>Activar cuenta en la nube</button>'+
+        '<details class="more"><summary>Ya tengo cuenta: entrar con mi clave<svg class="ic"><use href="#i-down"/></svg></summary><div class="more-body">'+
+        '<div class="field"><label for="nClave">Clave de acceso</label><input id="nClave" class="inp" placeholder="FL-…" autocomplete="off" autocapitalize="off" spellcheck="false"></div>'+
+        '<button class="btn btn-ghost" id="nEntrar">Entrar</button></div></details>';
+      return;
+    }
+    box.innerHTML='<div class="nube-st" id="nubeEstado"></div>'+
+      '<p class="hint">Cuenta: <b>'+esc(s.nombre||'')+'</b></p>'+
+      '<span class="lbl">Tu clave de acceso (para entrar desde otro teléfono o PC)</span>'+
+      '<div class="clave" id="nClaveVer">••••••••••••••••</div>'+
+      '<div class="foot-actions"><button class="btn btn-ghost btn-sm" id="nMostrar">Mostrar</button><button class="btn btn-ghost btn-sm" id="nCopiar"><svg class="ic"><use href="#i-copy"/></svg>Copiar clave</button></div>'+
+      '<p class="hint warn">Guárdala en un lugar seguro. Quien la tenga puede ver tus datos, y sin ella no puedes recuperar la cuenta.</p>'+
+      '<div class="foot-actions"><button class="btn btn-ink" id="nSync"><svg class="ic"><use href="#i-repeat"/></svg>Sincronizar</button><button class="btn btn-ghost" id="nSalir">Cerrar sesión aquí</button></div>';
+    pintarEstadoNube();
+  }
+  document.addEventListener('click',function(e){
+    var t=e.target.closest('button'); if(!t) return;
+    if(t.id==='nActivar'){ var n=$('nNombre').value.trim(); if(!n){ toast('Escribe tu nombre'); return; } t.disabled=true; t.textContent='Activando…';
+      activar(n).then(function(){ toast('Cuenta activada. Guarda tu clave de acceso'); pintarAjustes(); }).catch(function(err){ t.disabled=false; toast('No se pudo activar: '+err.message); pintarAjustes(); }); }
+    else if(t.id==='nEntrar'){ var c=$('nClave').value.trim(); if(!c){ toast('Pega tu clave'); return; } t.disabled=true;
+      entrar(c).then(function(){ toast('Listo: datos sincronizados'); pintarAjustes(); pintarForm(); pintarMeta(); }).catch(function(err){ t.disabled=false; toast(/clave_invalida/.test(err.message)?'Esa clave no existe':'No se pudo entrar: '+err.message); }); }
+    else if(t.id==='nMostrar'){ var v=$('nClaveVer'); if(v.textContent.indexOf('FL-')===0){ v.textContent='••••••••••••••••'; t.textContent='Mostrar'; } else { v.textContent=st().clave; t.textContent='Ocultar'; } }
+    else if(t.id==='nCopiar'){ copiar(st().clave,'Clave copiada'); }
+    else if(t.id==='nSync'){ pintarEstadoNube('Sincronizando…'); sync().then(function(ok){ if(ok){ toast('Sincronizado'); pintarForm(); } }); }
+    else if(t.id==='nSalir'){ if(confirm('Cerrar la sesión en este dispositivo? Tus datos quedan aquí y en la nube. Para volver a entrar necesitas tu clave.')) salir(); }
+    else if(t.id==='pvInvitar'){ invitar(t.getAttribute('data-prov')); }
+  });
+
+  /* ── invitar proveedor ── */
+  function pintarConectar(provId){
+    var box=$('pvConectar'), s=st();
+    if(!provId){ box.innerHTML='<p class="hint">Guarda el proveedor y luego vuelve aquí para invitarlo.</p>'; return; }
+    if(!s || !s.clave){ box.innerHTML='<p class="hint">Activa tu cuenta en la nube (Ajustes) para invitar a tu proveedor a recibir los pedidos en su app.</p>'; return; }
+    var e=(s.enlaces||{})[provId];
+    if(e && e.conectado){ box.innerHTML='<p class="prov-con">Conectado'+(e.nombreCuenta?' como '+esc(e.nombreCuenta):'')+': los pedidos le llegan a su app.</p>'; return; }
+    box.innerHTML='<p class="hint">'+(e?'Invitación enviada, todavía no la acepta. Puedes reenviarla.':'Le llega un enlace por WhatsApp; al abrirlo queda conectado.')+'</p>'+
+      '<button class="btn btn-ghost" id="pvInvitar" data-prov="'+esc(provId)+'" style="width:100%"><svg class="ic"><use href="#i-wa"/></svg>'+(e?'Reenviar invitación':'Invitar por WhatsApp')+'</button>';
+  }
+  function invitar(provId){
+    var p=provPorId(provId), s=st(); if(!p||!s) return;
+    rpc('flash_invitar',{p_clave:s.clave,p_prov_id:provId,p_nombre:p.nombre}).then(function(r){
+      var en=s.enlaces||{}; en[provId]={prov_id:provId,codigo:r.codigo,conectado:r.conectado}; setSt({enlaces:en});
+      var link=location.origin+location.pathname.replace(/index\.html$/,'')+'?invita='+r.codigo;
+      var msg='Hola '+p.nombre+', te invito a Flash para recibir mis pedidos directo en tu teléfono, con cantidades, precios e imágenes.\n\nÁbrelo aquí: '+link+'\n\n— '+(emp().rep||s.nombre||'');
+      var t=telWA(p.tel); window.open(t?('https://wa.me/'+t+'?text='+encodeURIComponent(msg)):('https://wa.me/?text='+encodeURIComponent(msg)),'_blank');
+      pintarConectar(provId);
+    }).catch(function(e){ toast('No se pudo crear la invitación: '+e.message); });
+  }
+
+  /* ── aceptar invitación ── */
+  var codigoInv='';
+  function revisarInvitacion(){
+    var m=location.search.match(/[?&]invita=([A-Za-z0-9]{6,12})/), guardado=''; try{ guardado=sessionStorage.getItem('flash_invita')||''; }catch(e){}
+    if(!m && !guardado) return;
+    codigoInv=m?m[1].toUpperCase():guardado; try{ sessionStorage.setItem('flash_invita',codigoInv); history.replaceState(null,'',location.pathname); }catch(e){}
+    var s=st(); $('invCampos').hidden=!!(s&&s.clave); $('invSt').textContent='';
+    if(!(s&&s.clave)){ $('invNombre').value=emp().nombre||cfg().nombre||''; $('invTel').value=emp().tel||''; }
+    abrir('dlgInv');
+  }
+  $('invAceptar').onclick=function(){
+    var b=this, s=st(), paso;
+    if(s && s.clave) paso=Promise.resolve(s.clave);
+    else{ var n=$('invNombre').value.trim(); if(!n){ toast('Escribe tu nombre'); return; }
+      paso=rpc('flash_crear_cuenta',{p_nombre:n,p_tel:$('invTel').value.trim()}).then(function(r){ try{ localStorage.removeItem(KH); }catch(e){} setSt({clave:r.clave,id:r.id,nombre:n,desde:null,imgsSubidas:{}}); return r.clave; }); }
+    b.disabled=true; $('invSt').textContent='Conectando…';
+    paso.then(function(clave){ return rpc('flash_aceptar',{p_clave:clave,p_codigo:codigoInv}); }).then(function(r){
+      setSt({esProveedor:true}); try{ sessionStorage.removeItem('flash_invita'); }catch(e){} cerrar('dlgInv'); b.disabled=false; pintarHomeRec();
+      toast('Listo: ya recibes los pedidos de '+(r.vendedor||'tu vendedor')); abrirRecibidos(); sync();
+    }).catch(function(e){ b.disabled=false;
+      $('invSt').textContent=/codigo_invalido/.test(e.message)?'Esa invitación no existe o ya no es válida.':/codigo_usado/.test(e.message)?'Esa invitación ya la usó otra persona. Pide una nueva.':/mismo_usuario/.test(e.message)?'Esta invitación es tuya: ábrela en el teléfono de tu proveedor.':'No se pudo conectar: '+e.message; });
+  };
+
+  /* ── vista del proveedor ── */
+  var rec=[], recFiltro='activos';
+  function pintarHomeRec(){
+    var s=st(), b=$('goRec'); b.hidden=!(s && s.clave && s.esProveedor);
+    var n=rec.filter(function(r){ return r.estado!=='cobrada'; }).length; $('recN').textContent=n?'('+n+')':'';
+  }
+  function cargarRecibidos(){
+    var s=st(); if(!s||!s.clave) return Promise.resolve();
+    $('recSt').textContent='Actualizando…';
+    return rpc('flash_recibidos',{p_clave:s.clave}).then(function(l){ rec=l||[]; $('recSt').textContent=''; pintarRec(); pintarHomeRec(); })
+      .catch(function(e){ $('recSt').textContent='Sin conexión: '+e.message; });
+  }
+  function abrirRecibidos(){ pintarRec(); abrir('dlgRec'); cargarRecibidos(); }
+  var EST_P=[['enviada','Recibido'],['produccion','En producción'],['entregada','Entregado'],['cobrada','Comisión pagada']];
+  function pintarRec(){
+    var box=$('recLista'), l=rec.filter(function(r){ return recFiltro==='todos' || r.estado!=='cobrada'; });
+    if(!rec.length){ box.innerHTML='<div class="empty"><b>Aún no te llegan pedidos</b>Cuando tu vendedor te envíe uno, aparece aquí.</div>'; return; }
+    if(!l.length){ box.innerHTML='<p class="hint">No tienes pedidos pendientes.</p>'; return; }
+    box.innerHTML=l.map(function(r,i){
+      var d=r.data||{}, f=0,pv=0, its=(d.items||[]).map(function(it){ var q=num(it.qty), a=num(it.fab), b=num(it.pub); f+=q*a; pv+=q*b;
+        return '<div><span>'+q.toLocaleString('es-EC')+' × '+esc(it.desc)+'</span><small>Fábrica '+money(a)+' · Venta '+money(b)+' · Comisión '+money(q*(b-a))+'</small></div>'; }).join('');
+      var k=r.vendedor+'|'+r.id;
+      return '<article class="vcard"><div class="vcard-top"><div><b>'+etq(d.num)+' · de '+esc(r.vendedorNombre||d.vendedor||'')+'</b><small>'+fechaTxt(d.fecha)+' · '+(EST_P.filter(function(x){ return x[0]===r.estado; })[0]||['',''])[1]+'</small></div>'+
+        '<div class="vcard-gain"><b class="money" style="color:var(--text)">'+money(f)+'</b><small>tu cobro</small></div></div>'+
+        '<div class="rec-items">'+its+'</div>'+
+        '<div class="rec-tot"><div>Total fábrica<b>'+money(f)+'</b></div><div>Venta al cliente<b>'+money(pv)+'</b></div><div class="com">Comisión vendedor<b>'+money(pv-f)+'</b></div></div>'+
+        (d.notas?'<p class="hint">Notas: '+esc(d.notas)+'</p>':'')+
+        ((d.imgs||[]).length?'<div class="imgs" data-rimgs="'+esc(k)+'">'+d.imgs.map(function(id){ return '<div class="thumb" data-rimg="'+esc(id)+'"><img alt="Referencia"></div>'; }).join('')+'</div>':'')+
+        '<div class="est-seg" data-k="'+esc(k)+'">'+EST_P.map(function(x){ return '<button data-est="'+x[0]+'" aria-pressed="'+(r.estado===x[0])+'">'+x[1]+'</button>'; }).join('')+'</div>'+
+        (r.vendedorTel?'<button class="btn btn-ghost btn-sm" data-wav="'+esc(r.vendedorTel)+'" data-num="'+esc(d.num)+'"><svg class="ic"><use href="#i-wa"/></svg>Escribir al vendedor</button>':'')+
+        '</article>';
+    }).join('');
+    box.querySelectorAll('[data-rimgs]').forEach(function(g){ var vend=g.getAttribute('data-rimgs').split('|')[0];
+      g.querySelectorAll('[data-rimg]').forEach(function(t){ var id=t.getAttribute('data-rimg');
+        imgGet('r_'+id).then(function(d){ if(d) return d; return rpc('flash_img',{p_clave:st().clave,p_vendedor:vend,p_id:id}).then(function(dd){ if(dd) imgPut('r_'+id,dd); return dd; }); })
+          .then(function(d){ var im=t.querySelector('img'); if(d && im) im.src=d; }).catch(function(){}); }); });
+  }
+  $('recLista').addEventListener('click',function(e){
+    var b=e.target.closest('[data-est]');
+    if(b){ var k=b.closest('[data-k]').getAttribute('data-k').split('|'), est=b.getAttribute('data-est');
+      rec.forEach(function(r){ if(r.vendedor===k[0] && r.id===k[1]) r.estado=est; }); pintarRec(); pintarHomeRec();
+      rpc('flash_estado',{p_clave:st().clave,p_vendedor:k[0],p_id:k[1],p_estado:est}).then(function(){ toast('Estado: '+(EST_P.filter(function(x){ return x[0]===est; })[0][1])); })
+        .catch(function(err){ toast('No se guardó: '+err.message); cargarRecibidos(); }); return; }
+    var w=e.target.closest('[data-wav]');
+    if(w){ window.open('https://wa.me/'+telWA(w.getAttribute('data-wav'))+'?text='+encodeURIComponent('Hola, sobre el pedido '+etq(w.getAttribute('data-num'))+': '),'_blank'); return; }
+    var t=e.target.closest('[data-rimg]'); if(t){ var im=t.querySelector('img'); if(im && im.src){ var win=window.open(); if(win) win.document.write('<body style="margin:0;background:#111;display:grid;place-items:center;min-height:100vh"><img src="'+im.src+'" style="max-width:100%;max-height:100vh">'); } }
+  });
+  $('recFiltro').addEventListener('click',function(e){ var b=e.target.closest('[data-rf]'); if(!b) return; recFiltro=b.getAttribute('data-rf');
+    this.querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-pressed',String(x===b)); }); pintarRec(); });
+  $('goRec').onclick=abrirRecibidos;
+
+  /* ── ciclo ── */
+  function alVolver(){ if(document.visibilityState!=='visible') return; reintentarPub(); sync(); if($('dlgRec').open) cargarRecibidos(); else if(st()&&st().esProveedor) cargarRecibidos(); }
+  document.addEventListener('visibilitychange',alVolver);
+  window.addEventListener('online',alVolver);
+  setInterval(function(){ if(document.visibilityState==='visible' && st() && st().clave) alVolver(); },60000);
+  function iniciar(){ var s=st(); if(s && s.enlaces) enlaces=s.enlaces; pintarHomeRec(); revisarInvitacion(); if(s && s.clave){ sync(); if(s.esProveedor) cargarRecibidos(); } }
+  return {cambio:cambio,sync:sync,publicar:publicar,conectado:conectado,pintarAjustes:pintarAjustes,pintarConectar:pintarConectar,iniciar:iniciar,rpc:rpc,_st:st};
+})();
+window.FlashNube=FlashNube;
+
 /* ═════════ Arranque ═════════ */
 cur=load(K.draft,null);
 if(!cur||!Array.isArray(cur.items)) cur=pedidoVacio();
 if(!cur.cli) cur.cli={nombre:'',tel:'',dir:''};
 if(!cur.modo) cur.modo=cur.estado==='cotizada'?'cliente':'proveedor';
-pintarForm(); pintarMeta(); irInicio();
+pintarForm(); pintarMeta(); irInicio(); FlashNube.iniciar();
 if(!provs().length) setTimeout(function(){ toast('Empieza agregando a tus proveedores','Agregar',function(){ abrirProvForm(null,true); }); },600);
 
 /* Service worker con aviso de actualización */
@@ -2180,8 +2516,8 @@ if('serviceWorker' in navigator && location.protocol.indexOf('http')===0){
     reg.addEventListener('updatefound',function(){ var w=reg.installing; if(!w) return;
       w.addEventListener('statechange',function(){ if(w.state==='installed' && navigator.serviceWorker.controller) avisar(w); }); });
   }).catch(function(){});
-  var recargado=false;
-  navigator.serviceWorker.addEventListener('controllerchange',function(){ if(recargado) return; recargado=true; location.reload(); });
+  var recargado=false, habia=!!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange',function(){ if(recargado || !habia) return; recargado=true; location.reload(); });
 }
 })();
 </script>
