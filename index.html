@@ -2280,6 +2280,10 @@ var FlashNube=(function(){
       else if(it.tipo==='cfg' && it.id==='logo' && it.data){ try{ localStorage.setItem(K.logo,it.data); }catch(e){} }
       hs[key]=it.borrado?'x':hash(it.data);
     });
+    // evita catálogos duplicados cuando dos dispositivos cargaron la misma semilla: queda el de la nube
+    var rem={}; items.forEach(function(it){ if(it.tipo==='prod' && !it.borrado) rem[it.id]=1; });
+    pr.sort(function(x,y){ return (rem[y.id]?1:0)-(rem[x.id]?1:0); });
+    var vistos={}; pr=pr.filter(function(x){ var k=String(x.nombre||'').toLowerCase().trim(); if(vistos[k]) return false; vistos[k]=1; return true; });
     aplicando=true; saveVentas(vs); saveProvs(ps); saveProds(pr); aplicando=false;
     try{ localStorage.setItem(KH,JSON.stringify(hs)); }catch(e){}
     faltan.forEach(function(id){ imgGet(id).then(function(d){ if(d) return; rpc('flash_img',{p_clave:st().clave,p_vendedor:null,p_id:id}).then(function(dd){ if(dd) imgPut(id,dd); }).catch(function(){}); }); });
