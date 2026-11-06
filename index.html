@@ -198,9 +198,12 @@ body.en-inicio{padding-bottom:env(safe-area-inset-bottom)}
 .tarde{color:var(--loss);font-weight:650}
 .foot-actions .btn{flex:1 1 140px}
 body.modo-cli .solo-prov{display:none!important}
+body.modo-cli .items .empty{display:none}
+body.modo-cli .items:empty{display:none}
 body:not(.modo-cli) .solo-cli{display:none!important}
 .add-top{margin-top:0}
 .add-top .btn{flex:1 1 0;min-width:0;padding:0 10px;white-space:nowrap;gap:6px}
+@media (max-width:340px){.dock .solo-ancho{display:none}}
 @media (max-width:420px){.add-top .solo-ancho{display:none}.add-top #btnVoz{width:46px;padding:0}}
 .add-top #btnVoz{flex:0 0 auto}
 .imgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;margin-bottom:10px}
@@ -335,7 +338,7 @@ dialog::backdrop{background:oklch(0.15 0.02 272 / .55)}
 }
 @media (max-width:370px){
   .grid2{grid-template-columns:1fr}
-  .dock .btn-volt span{display:none}
+  .dock .btn-volt{padding:0 14px}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
@@ -452,11 +455,11 @@ dialog::backdrop{background:oklch(0.15 0.02 272 / .55)}
   </section>
 
   <section aria-labelledby="secItems">
-    <div class="sec-h"><h2 id="secItems">Productos</h2><span id="itemsCount"></span></div>
+    <div class="sec-h solo-prov"><h2 id="secItems">Productos</h2><span id="itemsCount"></span></div>
     <div class="items" id="items"></div>
   </section>
 
-  <section aria-labelledby="secImg">
+  <section aria-labelledby="secImg" id="imgSec">
     <div class="sec-h"><h2 id="secImg">Imágenes de referencia</h2><span id="imgCount"></span></div>
     <div class="imgs" id="imgs"></div>
     <button class="btn btn-ghost" id="btnImg" style="width:100%"><svg class="ic"><use href="#i-plus"/></svg>Agregar imagen</button>
@@ -476,9 +479,8 @@ dialog::backdrop{background:oklch(0.15 0.02 272 / .55)}
     <div class="t-row t-gain" id="tGainRow"><div><span>Tu ganancia</span><small id="tMargen">—</small></div><b class="money" id="tGain">$0,00</b></div>
   </section>
 
-  <section class="solo-cli" aria-label="Proveedor de esta venta" style="display:flex;flex-direction:column;gap:8px">
-    <div id="provSlotCli"></div>
-  </section>
+  <div id="imgSlotCli"></div>
+  <div id="provSlotCli" hidden></div>
 
   <div id="provBox" style="display:flex;flex-direction:column;gap:8px">
     <div class="prov-row">
@@ -845,9 +847,10 @@ function pintarModo(){
   var cli=cur.modo==='cliente';
   document.body.classList.toggle('modo-cli',cli);
   var box=$('provBox'), slot=cli?$('provSlotCli'):$('provSlotTop'); if(box.parentNode!==slot) slot.appendChild(box);
+  var im=$('imgSec'); if(cli){ if(im.parentNode!==$('imgSlotCli')) $('imgSlotCli').appendChild(im); } else if(im.nextElementSibling!==document.querySelector('main .totals')) document.querySelector('main .totals').before(im);
   $('lblPub').textContent=cli?'Subtotal':'Total al público';
   $('hNumCli').textContent=etq(cur.num);
-  $('btnEnviar').innerHTML=cli?'<svg class="ic"><use href="#i-pdf"/></svg><span>Enviar cotización</span>':'<svg class="ic"><use href="#i-wa"/></svg><span>Enviar al proveedor</span>';
+  $('btnEnviar').innerHTML=cli?'<svg class="ic"><use href="#i-pdf"/></svg><span>Enviar <span class="solo-ancho">cotización</span></span>':'<svg class="ic"><use href="#i-wa"/></svg><span>Enviar <span class="solo-ancho">al proveedor</span></span>';
   $('lblProv').textContent=cli?'Proveedor (opcional, para calcular tu ganancia)':'Proveedor';
   $('lblNotas').textContent=cli?'Notas internas (no salen en la cotización)':'Notas para el proveedor';
   $('btnAceptado').hidden=!(cli && cur.id && (cur.estado==='cotizada'||cur.estado==='borrador'));
