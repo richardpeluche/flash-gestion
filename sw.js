@@ -2,8 +2,8 @@
    Basado en el sw corregido de RICCHARY (ago-2026): guarda el index en caché
    y usa el respaldo también ante 404/503, no solo cuando se cae la red.
    AL SUBIR CAMBIOS: sube el número de CACHE. */
-const CACHE = 'flash-v23';
-const ASSETS = ['./','./index.html','./manifest.json','./icon-192.png','./icon-512.png','./icon-maskable-512.png','./jspdf.umd.min.js'];
+const CACHE = 'flash-v24';
+const ASSETS = ['./','./index.html','./app.js','./manifest.json','./icon-192.png','./icon-512.png','./icon-maskable-512.png','./jspdf.umd.min.js'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => Promise.all(ASSETS.map(u => c.add(u).catch(() => null)))));
@@ -18,12 +18,14 @@ self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
   if (url.origin !== self.location.origin) return;
   const esHTML = e.request.mode === 'navigate' || url.pathname.endsWith('/') || url.pathname.endsWith('index.html');
-  if (esHTML) {
+  const esApp = url.pathname.endsWith('/app.js');
+  if (esHTML || esApp) {
+    const clave = esApp ? './app.js' : './index.html';
     e.respondWith(
       fetch(e.request).then(r => {
         if (!r || !r.ok) throw new Error('respuesta ' + (r && r.status));
-        const copia = r.clone(); caches.open(CACHE).then(c => c.put('./index.html', copia)); return r;
-      }).catch(() => caches.match('./index.html').then(c => c || caches.match('./')))
+        const copia = r.clone(); caches.open(CACHE).then(c => c.put(clave, copia)); return r;
+      }).catch(() => caches.match(clave).then(c => c || caches.match('./')))
     );
   } else {
     e.respondWith(caches.match(e.request).then(c => c || fetch(e.request).then(r => {
